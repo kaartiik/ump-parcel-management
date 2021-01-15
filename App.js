@@ -1,21 +1,37 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, Suspense } from 'react';
+import { LogBox } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { Provider } from 'react-redux';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import store from './app/providers/store';
+import {
+  navRef,
+  isMountedRef,
+} from './app/providers/services/NavigatorService';
+import AppNavigator from './app/navigation/navigator';
 
-export default function App() {
+LogBox.ignoreAllLogs();
+
+const App = () => {
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Provider store={store}>
+      <Suspense fallback={null}>
+        <SafeAreaProvider>
+          <NavigationContainer ref={navRef}>
+            <AppNavigator />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </Suspense>
+    </Provider>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
