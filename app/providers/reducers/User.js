@@ -1,74 +1,30 @@
 import { actions } from '../actions/User';
 
 const initialState = {
-  avatar: null,
-  name: null,
-  email: null,
-  phone: null,
-  units: null,
-  uuid: null,
-  roles: null,
-  unitsArr: [],
-  isAdmin: null,
-  isAuthorized: null,
-  firstTimeLogin: null,
-  token: null,
-  isSuccess: false,
+  name: '',
+  email: '',
+  mobile: '',
+  uuid: '',
+  role: '',
+  isAdmin: false,
+  token: '',
   isLoading: false,
-  user: null,
 };
 
 export default function userReducer(state = initialState, action = {}) {
   switch (action.type) {
-    case actions.SYNC_PROFILE:
-      return {
-        ...state,
-        list: action.profile,
-      };
-
-    case actions.PUT.USER:
-      return {
-        ...state,
-        user: action.user,
-      };
-
-    case actions.PUT.USER_NAME:
-      return {
-        ...state,
-        name: action.payload,
-      };
-
-    case actions.PUT.USER_PHONE:
-      return {
-        ...state,
-        phone: action.payload,
-      };
-
     case actions.PUT.USER_PROFILE: {
-      const {
-        uuid,
-        avatar,
-        name,
-        email,
-        phone,
-        units,
-        unitsArr,
-        roles,
-        isAdmin,
-        isAuthorized,
-      } = action.profile;
+      const { uuid, name, email, mobile, role, token } = action.payload;
+      console.log(uuid, name, email, mobile, role, token);
       return {
         ...state,
-        avatar,
+        uuid,
         name,
         email,
-        phone,
-        units,
-        unitsArr,
-        uuid,
-        roles,
-        isAdmin,
-        isAuthorized,
+        mobile,
+        role,
+        isAdmin: role === 'barber' ? true : false,
+        token,
       };
     }
 

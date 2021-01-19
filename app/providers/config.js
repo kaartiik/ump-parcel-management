@@ -24,7 +24,7 @@ const config = {
 
 // Initialize Firebase
 if (!firebase.apps.length) {
-  alert(config);
+  alert(JSON.stringify(config, null, 4));
   firebase.initializeApp(config);
 }
 

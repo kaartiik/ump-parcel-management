@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -15,8 +15,9 @@ import {
 } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import { Picker } from 'native-base';
 import { useDispatch } from 'react-redux';
-import { login, loginAnon } from '../../providers/actions/User';
+import { register } from '../../providers/actions/User';
 import { navigate } from '../../providers/services/NavigatorService';
 import colours from '../../providers/constants/colours';
 
@@ -37,39 +38,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  form: {
-    marginBottom: 48,
-    marginHorizontal: 30,
-  },
   textboxContainer: {
     backgroundColor: colours.themePrimaryLight,
     borderRadius: 3,
     padding: 5,
     marginVertical: 5,
   },
+  form: {
+    marginBottom: 48,
+    marginHorizontal: 30,
+  },
 });
 
 const validationSchema = yup.object().shape({
-  email: yup
-    .string()
-    .required('Email is a required field')
-    .email("Welp, that's not an email"),
-  password: yup
-    .string()
-    .required('Password is a required field')
-    .min(6, "That can't be very secure"),
+  role: yup.string().required('Required'),
+  name: yup.string().required('Required'),
+  mobile: yup.string().required('Required'),
+  email: yup.string().required('Required').email('Please enter a valid email'),
+  password: yup.string().required('Required').min(6, 'Minimum 6 characters'),
 });
 
-export default function Login({ navigation }) {
-  // const { login } = useContext(AuthContext);
+export default function Register({ navigation }) {
   const dispatch = useDispatch();
-
-  const handleLogin = ({ email, password }) => {
-    dispatch(login({ email, password }));
-  };
-
-  const handleAnonLogin = () => {
-    dispatch(loginAnon());
+  const handleLogin = ({ role, name, mobile, email, password }) => {
+    dispatch(register(role, name, mobile, email, password));
   };
 
   LayoutAnimation.easeInEaseOut();
@@ -81,13 +73,21 @@ export default function Login({ navigation }) {
     >
       <StatusBar barStyle="default" />
 
-      <Text style={styles.greeting}>{'Hello again.\nWelcome back.'}</Text>
+      <Text style={styles.greeting}>
+        {'Hello there.\nRegister an account.'}
+      </Text>
 
       <ScrollView>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.form}>
             <Formik
-              initialValues={{ email: '', password: '' }}
+              initialValues={{
+                role: '',
+                name: '',
+                mobile: '',
+                email: '',
+                password: '',
+              }}
               onSubmit={(values) => handleLogin(values)}
               validationSchema={validationSchema}
             >
@@ -95,6 +95,7 @@ export default function Login({ navigation }) {
                 handleChange,
                 handleBlur,
                 handleSubmit,
+                setFieldValue,
                 touched,
                 values,
                 submitCount,
@@ -102,6 +103,43 @@ export default function Login({ navigation }) {
               }) => {
                 return (
                   <View style={{ padding: 10 }}>
+                    <Picker
+                      style={{ width: '95%', alignSelf: 'center' }}
+                      selectedValue={values.role}
+                      onValueChange={(value) => setFieldValue('role', value)}
+                    >
+                      <Picker.Item label="Select" value="" />
+                      <Picker.Item label="Barber" value="barber" />
+                      <Picker.Item label="User" value="user" />
+                    </Picker>
+                    <Text style={{ color: 'red' }}>
+                      {(touched.role || submitCount > 0) && errors.role}
+                    </Text>
+
+                    <View style={styles.textboxContainer}>
+                      <TextInput
+                        placeholder="Enter name..."
+                        value={values.name}
+                        onChangeText={handleChange('name')}
+                        onBlur={handleBlur('name')}
+                      />
+                    </View>
+                    <Text style={{ color: 'red' }}>
+                      {(touched.name || submitCount > 0) && errors.name}
+                    </Text>
+
+                    <View style={styles.textboxContainer}>
+                      <TextInput
+                        placeholder="Enter mobile number..."
+                        value={values.mobile}
+                        onChangeText={handleChange('mobile')}
+                        onBlur={handleBlur('mobile')}
+                      />
+                    </View>
+                    <Text style={{ color: 'red' }}>
+                      {(touched.mobile || submitCount > 0) && errors.mobile}
+                    </Text>
+
                     <View style={styles.textboxContainer}>
                       <TextInput
                         placeholder="Enter email..."
@@ -132,28 +170,21 @@ export default function Login({ navigation }) {
                       onPress={handleSubmit}
                       title="SUBMIT"
                     >
-                      <Text style={{ color: 'white' }}>Sign In</Text>
+                      <Text style={{ color: 'white' }}>Register</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={{ justifyContent: 'center', alignItems: 'center' }}
+                      onPress={() => navigation.goBack()}
+                    >
+                      <Text style={{ color: 'blue' }}>
+                        Aready have an account? Sign in here.
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 );
               }}
             </Formik>
-
-            <TouchableOpacity
-              style={{ justifyContent: 'center', alignItems: 'center' }}
-              onPress={() => navigation.navigate('Register')}
-            >
-              <Text style={{ color: 'blue' }}>
-                Don't have an account? Register
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{ justifyContent: 'center', alignItems: 'center' }}
-              onPress={() => navigate('ForgotPassword')}
-            >
-              <Text style={{ color: 'blue' }}>Forgot password</Text>
-            </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </ScrollView>

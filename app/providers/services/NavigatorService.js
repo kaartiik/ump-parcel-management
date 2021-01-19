@@ -26,3 +26,12 @@ export function goBack() {
     navRef.current.back();
   }
 }
+
+export function reset(routeName, routeParams) {
+  if (navRef.current && isMountedRef.current) {
+    navRef.current.reset({
+      index: 0,
+      routes: [{ name: routeName, params: routeParams }],
+    });
+  }
+}
