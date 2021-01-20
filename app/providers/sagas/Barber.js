@@ -13,8 +13,9 @@ import {
 } from 'redux-saga/effects';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import rsf, { database } from '../../providers/config';
-import { actions, putRecipes, putLoadingStatus } from '../actions/Recipes';
+import rsf, { database } from '../config';
+import { actions, putBarberShop, putLoadingStatus } from '../actions/Barber';
+import { navigate, reset } from '../services/NavigatorService';
 
 dayjs.extend(customParseFormat);
 
@@ -24,7 +25,7 @@ const getUserNameFromState = (state) => state.userReducer.name;
 
 const getUserAvatarFromState = (state) => state.userReducer.avatar;
 
-const fetchNewPostKey = () => database.ref('recipes').push().key;
+const fetchNewShopKey = () => database.ref('barber_shops').push().key;
 
 const getPostUserDetails = (uuid) =>
   database
@@ -66,52 +67,108 @@ const formatPost = ({ data, name, avatar }) => {
   };
 };
 
-function* getPostsSaga() {
-  const channel = yield call(rsf.database.channel, 'posts');
-
-  while (true) {
-    const { snapshot } = yield take(channel);
-    if (snapshot !== null && snapshot !== undefined) {
-      const postsUnformattedArr = snapshot.val()
-        ? Object.values(snapshot.val())
-        : [];
-      const postsArr = yield all(
-        postsUnformattedArr.map(function* (data) {
-          const {
-            userData: { name, avatar },
-          } = yield call(getPostUserDetails, data.user_uid);
-          const postObject = yield call(formatPost, { data, name, avatar });
-          return postObject;
-        })
-      );
-      yield put(putPosts(postsArr));
-    }
-  }
-}
-
-function* getRefreshedPostsSaga() {
+function* getBarberShopInfoSaga() {
   yield put(putLoadingStatus(true));
   try {
-    const { postsData } = yield call(fetchRefreshedPosts);
-    const exists = postsData !== null;
-    if (exists) {
-      const postsUnformattedArr = Object.values(postsData);
+    const uuid = yield select(getUuidFromState);
 
-      const postsArr = yield all(
-        postsUnformattedArr.map(function* (data) {
-          const {
-            userData: { name, avatar },
-          } = yield call(getPostUserDetails, data.user_uid);
-          const postObject = yield call(formatPost, { data, name, avatar });
-          return postObject;
-        })
-      );
-      yield put(putPosts(postsArr));
+    const data = yield call(rsf.database.read, `users/${uuid}/barber_shops`);
+
+    const exists = data !== null && data !== undefined;
+    if (exists) {
+      yield put(putBarberShop(data));
       yield put(putLoadingStatus(false));
+      console.log('shop exist');
+      reset('Home');
+    } else {
+      console.log('shop doenst exist');
+      yield put(putLoadingStatus(false));
+
+      reset('Info', { screen: 'AddShop' });
     }
   } catch (error) {
     yield put(putLoadingStatus(false));
-    alert(`Error retrieving new posts! ${error}`);
+    alert(`Error retrieving new barber shop! ${error}`);
+  }
+}
+
+function* addBarberShopSaga({ payload }) {
+  yield put(putLoadingStatus(true));
+  try {
+    const {
+      shopName,
+      shopAddress,
+      shopContact,
+      shopOpenTime,
+      shopCloseTime,
+      onSuccess,
+    } = payload;
+    const shopKey = yield select(fetchNewShopKey);
+    const uuid = yield select(getUuidFromState);
+
+    const barberShopObj = {
+      shop_name: shopName,
+      shop_address: shopAddress,
+      shop_contact: shopContact,
+      shop_open_time: shopOpenTime,
+      shop_close_time: shopCloseTime,
+      shop_uid: shopKey,
+    };
+
+    yield call(rsf.database.update, `barber_shops/${shopKey}`, barberShopObj);
+
+    yield call(
+      rsf.database.update,
+      `users/${uuid}/barber_shops`,
+      barberShopObj
+    );
+
+    yield call(getBarberShopInfoSaga);
+    yield put(putLoadingStatus(false));
+    onSuccess();
+  } catch (error) {
+    yield put(putLoadingStatus(false));
+    alert(`Error adding shop. ${error}`);
+  }
+}
+
+function* editBarberShopSaga({ payload }) {
+  yield put(putLoadingStatus(true));
+  try {
+    const {
+      shopUid,
+      shopName,
+      shopAddress,
+      shopContact,
+      shopOpenTime,
+      shopCloseTime,
+      onSuccess,
+    } = payload;
+    const uuid = yield select(getUuidFromState);
+
+    const barberShopObj = {
+      shop_name: shopName,
+      shop_address: shopAddress,
+      shop_contact: shopContact,
+      shop_open_time: shopOpenTime,
+      shop_close_time: shopCloseTime,
+      shop_uid: shopUid,
+    };
+
+    yield call(rsf.database.update, `barber_shops/${shopUid}`, barberShopObj);
+
+    yield call(
+      rsf.database.update,
+      `users/${uuid}/barber_shops`,
+      barberShopObj
+    );
+
+    yield call(getBarberShopInfoSaga);
+    yield put(putLoadingStatus(false));
+    onSuccess();
+  } catch (error) {
+    yield put(putLoadingStatus(false));
+    alert(`Error adding shop. ${error}`);
   }
 }
 
@@ -340,18 +397,10 @@ function* deletePostImageSaga({ payload }) {
   }
 }
 
-export default function* Recipes() {
-  // yield fork(getPostsSaga);
+export default function* Barber() {
   yield all([
-    takeLatest(actions.GET.REFRESHED_RECIPES, getRefreshedPostsSaga),
-    takeLatest(actions.DELETE.RECIPES, deletePostSaga),
-    takeLatest(actions.DELETE.SINGLE_RECIPES_IMAGE, deletePostImageSaga),
-    takeLatest(actions.UPLOAD.RECIPES_IMAGES, uploadPostWithImagesSaga),
-    takeLatest(
-      actions.UPLOAD.EDITED_RECIPES_IMAGES,
-      uploadEditedPostWithImagesSaga
-    ),
-    // takeLatest(actions.UPLOAD.POST_IMAGES, deletePostSaga),
-    //   takeEvery(actions.PROFILE.UPDATE, updateProfileSaga),
+    takeLatest(actions.GET.BARBER_SHOP, getBarberShopInfoSaga),
+    takeLatest(actions.ADD.BARBER_SHOP, addBarberShopSaga),
+    takeLatest(actions.EDIT.BARBER_SHOP, editBarberShopSaga),
   ]);
 }

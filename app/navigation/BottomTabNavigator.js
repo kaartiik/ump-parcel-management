@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import colours from '../providers/constants/colours';
 import Home from '../screens/Home';
-import UploadRecipe from '../screens/UploadRecipe';
+import InfoStack from './InfoStack';
 
 // import { AuthContext } from './AuthProvider';
 
@@ -25,7 +25,7 @@ export default function BottomTabNavigator() {
 
           if (route.name === 'Home') {
             iconName = 'ios-home';
-          } else if (route.name === 'Upload') {
+          } else if (route.name === 'Info') {
             iconName = 'ios-add-circle';
           }
           // else if (route.name === 'Users') {
@@ -50,7 +50,7 @@ export default function BottomTabNavigator() {
       }}
     >
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Upload" component={UploadRecipe} />
+      <Tab.Screen name="Info" component={InfoStack} />
       {/* <Tab.Screen name="Users" component={Users} />
       <Tab.Screen name="Profile" component={Profile} />
       <Tab.Screen name="Chats" component={HomeScreen} /> */}

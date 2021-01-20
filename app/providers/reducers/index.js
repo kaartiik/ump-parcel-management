@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
 import userReducer from './User';
-import recipeReducer from './Recipes';
+import barberReducer from './Barber';
 
 export default combineReducers({
   userReducer,
-  recipeReducer,
+  barberReducer,
 });

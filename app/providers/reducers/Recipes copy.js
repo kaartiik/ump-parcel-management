@@ -1,4 +1,4 @@
-import { actions } from '../actions/Recipes';
+import { actions } from '../actions/Barber';
 
 const initialState = {
   postFeed: [],

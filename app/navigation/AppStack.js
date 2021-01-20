@@ -1,18 +1,21 @@
-import React, { useContext } from 'react';
+import React, { useEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import BottomTabNavigator from './BottomTabNavigator';
-// import { AuthContext } from './AuthProvider';
+import { getBarberShop } from '../providers/actions/Barber';
 
 const Stack = createStackNavigator();
 
 export default function MainStack() {
-  // const { isAdmin } = useContext(AuthContext);
+  const dispatch = useDispatch();
 
   const { isAdmin } = useSelector((state) => ({
     isAdmin: state.userReducer.isAdmin,
   }));
+
+  useEffect(() => {
+    dispatch(getBarberShop());
+  }, []);
 
   return (
     <Stack.Navigator initialRouteName="MyTabs" mode="modal" headerMode="none">

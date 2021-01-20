@@ -15,7 +15,6 @@ export default function userReducer(state = initialState, action = {}) {
   switch (action.type) {
     case actions.PUT.USER_PROFILE: {
       const { uuid, name, email, mobile, role, token } = action.payload;
-      console.log(uuid, name, email, mobile, role, token);
       return {
         ...state,
         uuid,
