@@ -21,7 +21,7 @@ dayjs.extend(customParseFormat);
 
 const getUuidFromState = (state) => state.userReducer.uuid;
 
-const getUserNameFromState = (state) => state.userReducer.name;
+const getIsAdminFromState = (state) => state.userReducer.isAdmin;
 
 const getUserAvatarFromState = (state) => state.userReducer.avatar;
 
@@ -71,6 +71,13 @@ function* getBarberShopInfoSaga() {
   yield put(putLoadingStatus(true));
   try {
     const uuid = yield select(getUuidFromState);
+    const isAdmin = yield select(getIsAdminFromState);
+
+    if (!isAdmin) {
+      console.log(isAdmin);
+      reset('Home');
+      return;
+    }
 
     const data = yield call(rsf.database.read, `users/${uuid}/barber_shops`);
 
@@ -83,7 +90,6 @@ function* getBarberShopInfoSaga() {
     } else {
       console.log('shop doenst exist');
       yield put(putLoadingStatus(false));
-
       reset('Info', { screen: 'AddShop' });
     }
   } catch (error) {

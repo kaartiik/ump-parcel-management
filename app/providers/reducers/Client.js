@@ -1,16 +1,16 @@
-import { actions } from '../actions/Barber';
+import { actions } from '../actions/Client';
 
 const initialState = {
-  postFeed: [],
+  barberShops: [],
   isLoading: false,
 };
 
-export default function recipeReducer(state = initialState, action = {}) {
+export default function clientReducer(state = initialState, action = {}) {
   switch (action.type) {
-    case actions.PUT.RECIPES:
+    case actions.PUT.BARBER_SHOPS:
       return {
         ...state,
-        postFeed: action.payload,
+        barberShops: action.payload,
       };
 
     case actions.PUT.LOADING_STATUS:

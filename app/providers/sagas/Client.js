@@ -13,8 +13,8 @@ import {
 } from 'redux-saga/effects';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import rsf, { database } from '../../providers/config';
-import { actions, putRecipes, putLoadingStatus } from '../actions/Barber';
+import rsf, { database } from '../config';
+import { actions, putBarberShops, putLoadingStatus } from '../actions/Client';
 
 dayjs.extend(customParseFormat);
 
@@ -66,52 +66,20 @@ const formatPost = ({ data, name, avatar }) => {
   };
 };
 
-function* getPostsSaga() {
-  const channel = yield call(rsf.database.channel, 'posts');
-
-  while (true) {
-    const { snapshot } = yield take(channel);
-    if (snapshot !== null && snapshot !== undefined) {
-      const postsUnformattedArr = snapshot.val()
-        ? Object.values(snapshot.val())
-        : [];
-      const postsArr = yield all(
-        postsUnformattedArr.map(function* (data) {
-          const {
-            userData: { name, avatar },
-          } = yield call(getPostUserDetails, data.user_uid);
-          const postObject = yield call(formatPost, { data, name, avatar });
-          return postObject;
-        })
-      );
-      yield put(putPosts(postsArr));
-    }
-  }
-}
-
-function* getRefreshedPostsSaga() {
+function* getBarberShopsSaga() {
   yield put(putLoadingStatus(true));
   try {
-    const { postsData } = yield call(fetchRefreshedPosts);
-    const exists = postsData !== null;
+    const data = yield call(rsf.database.read, `barber_shops`);
+    const exists = data !== null && data !== undefined;
     if (exists) {
-      const postsUnformattedArr = Object.values(postsData);
+      const shopsArr = Object.values(data);
 
-      const postsArr = yield all(
-        postsUnformattedArr.map(function* (data) {
-          const {
-            userData: { name, avatar },
-          } = yield call(getPostUserDetails, data.user_uid);
-          const postObject = yield call(formatPost, { data, name, avatar });
-          return postObject;
-        })
-      );
-      yield put(putPosts(postsArr));
+      yield put(putBarberShops(shopsArr));
       yield put(putLoadingStatus(false));
     }
   } catch (error) {
     yield put(putLoadingStatus(false));
-    alert(`Error retrieving new posts! ${error}`);
+    alert(`Error retrieving barber shops! ${error}`);
   }
 }
 
@@ -340,18 +308,7 @@ function* deletePostImageSaga({ payload }) {
   }
 }
 
-export default function* Recipes() {
+export default function* Client() {
   // yield fork(getPostsSaga);
-  yield all([
-    takeLatest(actions.GET.REFRESHED_RECIPES, getRefreshedPostsSaga),
-    takeLatest(actions.DELETE.RECIPES, deletePostSaga),
-    takeLatest(actions.DELETE.SINGLE_RECIPES_IMAGE, deletePostImageSaga),
-    takeLatest(actions.UPLOAD.RECIPES_IMAGES, uploadPostWithImagesSaga),
-    takeLatest(
-      actions.UPLOAD.EDITED_RECIPES_IMAGES,
-      uploadEditedPostWithImagesSaga
-    ),
-    // takeLatest(actions.UPLOAD.POST_IMAGES, deletePostSaga),
-    //   takeEvery(actions.PROFILE.UPDATE, updateProfileSaga),
-  ]);
+  yield all([takeLatest(actions.GET.BARBER_SHOPS, getBarberShopsSaga)]);
 }

@@ -1,10 +1,9 @@
 export const actions = {
   GET: {
-    RECIPES: 'GET_RECIPES',
-    REFRESHED_RECIPES: 'REFRESHED_RECIPES',
+    BARBER_SHOPS: 'GET_BARBER_SHOPS',
   },
   PUT: {
-    RECIPES: 'PUT_RECIPES',
+    BARBER_SHOPS: 'PUT_BARBER_SHOPS',
     LOADING_STATUS: 'PUT_LOADING_STATUS',
   },
   UPLOAD: {
@@ -17,17 +16,17 @@ export const actions = {
   },
 };
 
-export const getRecipes = () => ({
-  type: actions.GET.RECIPES,
+export const getBarberShops = () => ({
+  type: actions.GET.BARBER_SHOPS,
 });
 
 export const getRefreshedRecipes = () => ({
   type: actions.GET.REFRESHED_RECIPES,
 });
 
-export const putRecipes = (posts) => ({
-  type: actions.PUT.RECIPES,
-  payload: posts,
+export const putBarberShops = (shops) => ({
+  type: actions.PUT.BARBER_SHOPS,
+  payload: shops,
 });
 
 export const uploadRecipeWithImages = (
@@ -35,7 +34,7 @@ export const uploadRecipeWithImages = (
   title,
   ingredients,
   description,
-  postImages,
+  postImages
 ) => ({
   type: actions.UPLOAD.RECIPES_IMAGES,
   payload: { recipeType, title, description, ingredients, postImages },
@@ -47,7 +46,7 @@ export const uploadEditedRecipeWithImages = (
   postImages,
   ingredients,
   removedPostImgs,
-  postId,
+  postId
 ) => ({
   type: actions.UPLOAD.EDITED_RECIPES_IMAGES,
   payload: {

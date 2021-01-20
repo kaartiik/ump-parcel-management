@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import colours from '../providers/constants/colours';
 import Home from '../screens/Home';
 import InfoStack from './InfoStack';
+import ShopsStack from './ShopsStack';
 
 // import { AuthContext } from './AuthProvider';
 
@@ -26,6 +27,8 @@ export default function BottomTabNavigator() {
           if (route.name === 'Home') {
             iconName = 'ios-home';
           } else if (route.name === 'Info') {
+            iconName = 'ios-add-circle';
+          } else if (route.name === 'Shops') {
             iconName = 'ios-add-circle';
           }
           // else if (route.name === 'Users') {
@@ -51,6 +54,7 @@ export default function BottomTabNavigator() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Info" component={InfoStack} />
+      <Tab.Screen name="Shops" component={ShopsStack} />
       {/* <Tab.Screen name="Users" component={Users} />
       <Tab.Screen name="Profile" component={Profile} />
       <Tab.Screen name="Chats" component={HomeScreen} /> */}

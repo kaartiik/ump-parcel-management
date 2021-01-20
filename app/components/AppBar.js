@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  ImageBackground,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import React from 'react';
+import { View, TouchableOpacity, Image } from 'react-native';
 import { Header, Left, Right, Body } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
 import colours from '../providers/constants/colours';
+import { logout } from '../providers/actions/User';
 
 const AppBar = () => {
+  const dispatch = useDispatch();
+
+  const { isAdmin } = useSelector((state) => ({
+    isAdmin: state.userReducer.isAdmin,
+  }));
+
   return (
     <View>
       <Header
@@ -30,19 +30,21 @@ const AppBar = () => {
         }}
       >
         <Left>
+          <TouchableOpacity onPress={() => dispatch(logout())}>
+            <Ionicons name="ios-exit" size={20} color="white" />
+          </TouchableOpacity>
+        </Left>
+
+        <Body>
           <Image
             // eslint-disable-next-line global-require
             source={require('../../assets/ResipiIbu.png')}
             resizeMode="contain"
             style={{ alignSelf: 'flex-start', height: '100%', width: '150%' }}
           />
-        </Left>
+        </Body>
 
-        <Right>
-          <TouchableOpacity>
-            <Ionicons name="ios-search" size={18} color="white" />
-          </TouchableOpacity>
-        </Right>
+        <Right />
       </Header>
     </View>
   );

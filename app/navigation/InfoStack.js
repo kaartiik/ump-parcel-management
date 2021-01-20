@@ -6,7 +6,7 @@ import BarberShopInfo from '../screens/AddShop/BarberShopInfo';
 
 const Stack = createStackNavigator();
 
-export default function AuthStack() {
+export default function InfoStack() {
   return (
     <Stack.Navigator
       initialRouteName="BarberShopInfo"
