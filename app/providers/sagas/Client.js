@@ -24,7 +24,8 @@ const getUserNameFromState = (state) => state.userReducer.name;
 
 const getUserAvatarFromState = (state) => state.userReducer.avatar;
 
-const fetchNewPostKey = () => database.ref('recipes').push().key;
+const fetchNewBookingKey = (barberShopUid) =>
+  database.ref('barber_shops').child(barberShopUid).push().key;
 
 const getPostUserDetails = (uuid) =>
   database
@@ -80,6 +81,52 @@ function* getBarberShopsSaga() {
   } catch (error) {
     yield put(putLoadingStatus(false));
     alert(`Error retrieving barber shops! ${error}`);
+  }
+}
+
+function* confirmBookingSaga({ payload }) {
+  yield put(putLoadingStatus(true));
+
+  const {
+    shopUid,
+    service,
+    timestamp,
+    uuid,
+    userName,
+    userMobile,
+    userEmail,
+  } = payload;
+
+  const bookingKey = yield call(fetchNewBookingKey, shopUid);
+
+  const bookingObject = {
+    service,
+    booking_time: timestamp,
+    client_uid: uuid,
+    client_name: userName,
+    client_mobile: userMobile,
+    client_email: userEmail,
+    shop_uid: shopUid,
+  };
+
+  try {
+    yield call(
+      rsf.database.update,
+      `barber_shops/${shopUid}/bookings/${bookingKey}`,
+      bookingObject
+    );
+    yield call(
+      rsf.database.update,
+      `users/${uuid}/bookings/${bookingKey}`,
+      bookingObject
+    );
+    yield put(putLoadingStatus(false));
+
+    alert(`Booking made!`);
+  } catch (error) {
+    yield put(putLoadingStatus(false));
+
+    alert(`Failed to make booking. Please try again. ${error}`);
   }
 }
 
@@ -310,5 +357,8 @@ function* deletePostImageSaga({ payload }) {
 
 export default function* Client() {
   // yield fork(getPostsSaga);
-  yield all([takeLatest(actions.GET.BARBER_SHOPS, getBarberShopsSaga)]);
+  yield all([
+    takeLatest(actions.GET.BARBER_SHOPS, getBarberShopsSaga),
+    takeLatest(actions.CONFIRM_BOOKING, confirmBookingSaga),
+  ]);
 }

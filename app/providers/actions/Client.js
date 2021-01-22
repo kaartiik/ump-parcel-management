@@ -4,8 +4,11 @@ export const actions = {
   },
   PUT: {
     BARBER_SHOPS: 'PUT_BARBER_SHOPS',
+    CHOSEN_SHOP: 'PUT_CHOSEN_SHOP',
+    CHOSEN_DATE: 'PUT_CHOSEN_DATE',
     LOADING_STATUS: 'PUT_LOADING_STATUS',
   },
+  CONFIRM_BOOKING: 'CONFIRM_BOOKING',
   UPLOAD: {
     RECIPES_IMAGES: 'UPLOAD_RECIPES_WITH_IMAGES',
     EDITED_RECIPES_IMAGES: 'UPLOAD_EDITED_RECIPES_WITH_IMAGES',
@@ -27,6 +30,37 @@ export const getRefreshedRecipes = () => ({
 export const putBarberShops = (shops) => ({
   type: actions.PUT.BARBER_SHOPS,
   payload: shops,
+});
+
+export const putChosenShop = (shop) => ({
+  type: actions.PUT.CHOSEN_SHOP,
+  payload: shop,
+});
+
+export const putChosenDate = (date) => ({
+  type: actions.PUT.CHOSEN_DATE,
+  payload: date,
+});
+
+export const confirmBooking = (
+  shopUid,
+  service,
+  timestamp,
+  uuid,
+  userName,
+  userMobile,
+  userEmail
+) => ({
+  type: actions.CONFIRM_BOOKING,
+  payload: {
+    shopUid,
+    service,
+    timestamp,
+    uuid,
+    userName,
+    userMobile,
+    userEmail,
+  },
 });
 
 export const uploadRecipeWithImages = (

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "resipi-ibu",
-    "slug": "resipi-ibu",
+    "name": "Barber App",
+    "slug": "barber-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

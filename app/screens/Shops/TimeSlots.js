@@ -16,6 +16,7 @@ import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
 
 import colours from '../../providers/constants/colours';
+import timeList from '../../providers/constants/timeList';
 
 import { getBarberShops } from '../../providers/actions/Client';
 
@@ -64,15 +65,20 @@ const styles = StyleSheet.create({
   },
 });
 
-const RenderItem = ({ item, navigation }) => {
-  const dispatch = useDispatch();
-
+const RenderItem = ({ item, day, shopItem, navigation }) => {
+  const fullDate = `${day.dateString} ${item}`;
   return (
     <View style={{ marginTop: 10, padding: 10 }}>
       <TouchableOpacity
         style={styles.recipeItem}
         onPress={() =>
-          navigation.navigate('CalendarScreen', { shopItem: item })
+          navigation.navigate('ConfirmBooking', {
+            shopItem,
+            timestamp: dayjs(
+              `${day.dateString} ${item}`,
+              'YYYY-MM-DD hh:mm A'
+            ).valueOf(),
+          })
         }
       >
         <View style={{ marginLeft: 10 }}>
@@ -83,12 +89,7 @@ const RenderItem = ({ item, navigation }) => {
               marginVertical: 3,
             }}
           >
-            {item.shop_name.toUpperCase()}
-          </Text>
-          <Text style={styles.recipeDescription}>
-            {`${dayjs(item.shop_open_time).format('hh:mm A')} - ${dayjs(
-              item.shop_close_time
-            ).format('hh:mm A')}`}
+            {item}
           </Text>
         </View>
       </TouchableOpacity>
@@ -97,42 +98,15 @@ const RenderItem = ({ item, navigation }) => {
 };
 
 RenderItem.propTypes = {
-  item: PropTypes.object.isRequired,
+  item: PropTypes.string.isRequired,
 };
 
-function Shops({ navigation }) {
-  const dispatch = useDispatch();
-  const [search, setSearch] = useState('');
-  const [data, setData] = useState([]);
-
-  const { isAdmin, barberShops, isLoading } = useSelector((state) => ({
+function TimeSlots({ route, navigation }) {
+  const { shopItem, day } = route.params;
+  const { isAdmin, isLoading } = useSelector((state) => ({
     isAdmin: state.userReducer.isAdmin,
-    barberShops: state.clientReducer.barberShops,
     isLoading: state.clientReducer.isLoading,
   }));
-
-  useEffect(() => {
-    dispatch(getBarberShops());
-  }, []);
-
-  useEffect(() => {
-    setData([...barberShops]);
-  }, [barberShops]);
-
-  const searchData = (searchText) => {
-    let newData = [];
-    if (searchText) {
-      newData = recipeFeed.filter((item) => {
-        const uSearchText = searchText.toUpperCase();
-        const uTitle = item.rTitle.toUpperCase();
-
-        return uTitle.indexOf(uSearchText) > -1;
-      });
-      setData([...newData]);
-    } else {
-      setData([...recipeFeed]);
-    }
-  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -144,29 +118,24 @@ function Shops({ navigation }) {
         <View style={styles.divider} />
       </View>
 
-      <View style={styles.searchBox}>
-        <TextInput
-          placeholder="Search..."
-          value={search}
-          onChangeText={(text) => {
-            setSearch(text);
-            searchData(text);
-          }}
-        />
-      </View>
-
       {isLoading ? (
         <LoadingIndicator />
       ) : (
         <FlatList
           keyExtractor={(item, index) => index.toString()}
-          data={data}
+          data={timeList}
           renderItem={({ item, index }) => (
-            <RenderItem key={index} item={item} navigation={navigation} />
+            <RenderItem
+              key={index}
+              item={item}
+              day={day}
+              shopItem={shopItem}
+              navigation={navigation}
+            />
           )}
           ListEmptyComponent={
             <View style={styles.flatlistEmptyContainer}>
-              <Text>No barber shops available</Text>
+              <Text>No time slots</Text>
             </View>
           }
         />
@@ -175,4 +144,4 @@ function Shops({ navigation }) {
   );
 }
 
-export default Shops;
+export default TimeSlots;
