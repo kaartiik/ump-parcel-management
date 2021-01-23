@@ -1,7 +1,7 @@
 import { actions } from '../actions/Barber';
 
 const initialState = {
-  bookings: [],
+  barberBookings: [],
   barberShop: null,
   isLoading: false,
 };
@@ -14,10 +14,10 @@ export default function barberReducer(state = initialState, action = {}) {
         barberShop: action.payload,
       };
 
-    case actions.PUT.BOOKINGS:
+    case actions.PUT.BARBER_BOOKINGS:
       return {
         ...state,
-        barberShop: action.payload,
+        barberBookings: action.payload,
       };
 
     case actions.PUT.LOADING_STATUS:

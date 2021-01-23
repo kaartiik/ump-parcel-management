@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import colours from '../providers/constants/colours';
 import Home from '../screens/Home';
+import HomeBarber from '../screens/HomeBarber';
 import InfoStack from './InfoStack';
 import ShopsStack from './ShopsStack';
 
@@ -25,6 +26,8 @@ export default function BottomTabNavigator() {
           let iconName;
 
           if (route.name === 'Home') {
+            iconName = 'ios-home';
+          } else if (route.name === 'HomeBarber') {
             iconName = 'ios-home';
           } else if (route.name === 'Info') {
             iconName = 'ios-add-circle';
@@ -52,7 +55,11 @@ export default function BottomTabNavigator() {
         // showLabel:  false
       }}
     >
-      <Tab.Screen name="Home" component={Home} />
+      {isAdmin ? (
+        <Tab.Screen name="HomeBarber" component={HomeBarber} />
+      ) : (
+        <Tab.Screen name="Home" component={Home} />
+      )}
       <Tab.Screen name="Info" component={InfoStack} />
       <Tab.Screen name="Shops" component={ShopsStack} />
       {/* <Tab.Screen name="Users" component={Users} />

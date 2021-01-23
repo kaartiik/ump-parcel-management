@@ -1,14 +1,11 @@
 export const actions = {
   GET: {
     BARBER_SHOP: 'GET_BARBER_SHOP',
-    BOOKINGS: 'GET_BOOKINGS',
-    RECIPES: 'GET_RECIPES',
-    REFRESHED_RECIPES: 'REFRESHED_RECIPES',
+    BARBER_BOOKINGS: 'GET_BARBER_BOOKINGS',
   },
   PUT: {
     BARBER_SHOP: 'PUT_BARBER_SHOP',
-    BOOKINGS: 'PUT_BOOKINGS',
-    RECIPES: 'PUT_RECIPES',
+    BARBER_BOOKINGS: 'PUT_BARBER_BOOKINGS',
     LOADING_STATUS: 'PUT_LOADING_STATUS',
   },
   ADD: {
@@ -17,15 +14,18 @@ export const actions = {
   EDIT: {
     BARBER_SHOP: 'EDIT_BARBER_SHOP',
   },
-  UPLOAD: {
-    RECIPES_IMAGES: 'UPLOAD_RECIPES_WITH_IMAGES',
-    EDITED_RECIPES_IMAGES: 'UPLOAD_EDITED_RECIPES_WITH_IMAGES',
-  },
-  DELETE: {
-    RECIPES: 'DELETE_RECIPES',
-    SINGLE_RECIPES_IMAGE: 'SINGLE_RECIPES_IMAGE',
-  },
+  UPDATE_BOOKING_STATUS: 'UPDATE_BOOKING_STATUS',
 };
+
+export const updateBookingStatus = (
+  shopUid,
+  clientUid,
+  bookingUid,
+  status
+) => ({
+  type: actions.UPDATE_BOOKING_STATUS,
+  payload: { shopUid, clientUid, bookingUid, status },
+});
 
 export const getBarberShop = () => ({
   type: actions.GET.BARBER_SHOP,
@@ -76,53 +76,13 @@ export const editBarberShop = (
   },
 });
 
-export const getRefreshedRecipes = () => ({
-  type: actions.GET.REFRESHED_RECIPES,
+export const getBarberBookings = () => ({
+  type: actions.GET.BARBER_BOOKINGS,
 });
 
-export const putRecipes = (posts) => ({
-  type: actions.PUT.RECIPES,
-  payload: posts,
-});
-
-export const uploadRecipeWithImages = (
-  recipeType,
-  title,
-  ingredients,
-  description,
-  postImages
-) => ({
-  type: actions.UPLOAD.RECIPES_IMAGES,
-  payload: { recipeType, title, description, ingredients, postImages },
-});
-
-export const uploadEditedRecipeWithImages = (
-  title,
-  description,
-  postImages,
-  ingredients,
-  removedPostImgs,
-  postId
-) => ({
-  type: actions.UPLOAD.EDITED_RECIPES_IMAGES,
-  payload: {
-    title,
-    description,
-    postImages,
-    ingredients,
-    removedPostImgs,
-    postId,
-  },
-});
-
-export const deleteRecipe = (uuid, postId, postImages) => ({
-  type: actions.DELETE.RECIPES,
-  payload: { uuid, postId, postImages },
-});
-
-export const deleteRecipeImage = (uuid, postId, imageKey, imageKeyWithExt) => ({
-  type: actions.DELETE.SINGLE_RECIPES_IMAGE,
-  payload: { uuid, postId, imageKey, imageKeyWithExt },
+export const putBarberBookings = (bookings) => ({
+  type: actions.PUT.BARBER_BOOKINGS,
+  payload: bookings,
 });
 
 export const putLoadingStatus = (isLoading) => ({

@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
+import { Picker } from 'native-base';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -16,9 +17,12 @@ import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
 
 import colours from '../../providers/constants/colours';
-import timeList from '../../providers/constants/timeList';
 
-import { getBookings } from '../../providers/actions/Client';
+import {
+  getBarberBookings,
+  updateBookingStatus,
+} from '../../providers/actions/Barber';
+import timeList from '../../providers/constants/timeList';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -65,6 +69,8 @@ const styles = StyleSheet.create({
 });
 
 const RenderItem = ({ item }) => {
+  const dispatch = useDispatch();
+
   return (
     <View style={{ marginTop: 10, padding: 10 }}>
       <View style={styles.bookingItem}>
@@ -88,9 +94,26 @@ const RenderItem = ({ item }) => {
           </Text>
         </View>
         <Text style={{ fontWeight: 'bold' }}>{item.service}</Text>
-        <Text>{item.shop_name}</Text>
-        <Text>{item.shop_contact}</Text>
-        <Text>{item.shop_address}</Text>
+        <Text>{item.name}</Text>
+        <Text>{item.mobile}</Text>
+
+        <Picker
+          style={{ width: '95%', alignSelf: 'center' }}
+          selectedValue={item.status}
+          onValueChange={(value) =>
+            dispatch(
+              updateBookingStatus(
+                item.shop_uid,
+                item.client_uid,
+                item.booking_uid,
+                value
+              )
+            )
+          }
+        >
+          <Picker.Item label="Confirmed" value="Confirmed" />
+          <Picker.Item label="Pending" value="Pending" />
+        </Picker>
       </View>
     </View>
   );
@@ -103,22 +126,26 @@ RenderItem.propTypes = {
 function Home({ route, navigation }) {
   const dispatch = useDispatch();
 
-  const { isAdmin, myBookings, isLoading } = useSelector((state) => ({
+  const { isAdmin, barberBookings, isLoading } = useSelector((state) => ({
     isAdmin: state.userReducer.isAdmin,
-    myBookings: state.clientReducer.myBookings,
+    barberBookings: state.barberReducer.barberBookings,
     isLoading: state.clientReducer.isLoading,
   }));
 
   useEffect(() => {
-    dispatch(getBookings());
+    dispatch(getBarberBookings());
   }, []);
+
+  useEffect(() => {
+    console.log(barberBookings);
+  }, [barberBookings]);
 
   return (
     <View style={{ flex: 1 }}>
       <AppBar />
 
       <View style={{ padding: 10 }}>
-        <Text style={{ fontSize: 18 }}>My Bookings</Text>
+        <Text style={{ fontSize: 18 }}>Bookings</Text>
 
         <View style={styles.divider} />
       </View>
@@ -128,7 +155,7 @@ function Home({ route, navigation }) {
       ) : (
         <FlatList
           keyExtractor={(item, index) => index.toString()}
-          data={myBookings}
+          data={barberBookings}
           renderItem={({ item, index }) => (
             <RenderItem key={index} item={item} />
           )}

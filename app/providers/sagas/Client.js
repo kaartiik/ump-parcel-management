@@ -67,6 +67,7 @@ function* confirmBookingSaga({ payload }) {
   const bookingObject = {
     service,
     booking_time: timestamp,
+    booking_uid: bookingKey,
     client_uid: uuid,
     client_name: userName,
     client_mobile: userMobile,
@@ -105,12 +106,30 @@ function* getMyBookingsSaga() {
     const bookingsObj = yield call(rsf.database.read, `users/${uuid}/bookings`);
     const bookingsArr = Object.values(bookingsObj);
 
-    console.log(bookingsArr);
+    const bookingsArrFormated = yield all(
+      bookingsArr.map(function* (booking) {
+        const shopInfo = yield call(
+          rsf.database.read,
+          `barber_shops/${booking.shop_uid}`
+        );
 
-    yield put(putBookings(bookingsArr));
+        delete shopInfo['bookings'];
+
+        const bookingWithShop = {
+          ...booking,
+          ...shopInfo,
+        };
+        return bookingWithShop;
+      })
+    );
+
+    console.log(bookingsArrFormated);
+
+    yield put(putBookings(bookingsArrFormated));
     yield put(putLoadingStatus(false));
   } catch (error) {
     yield put(putLoadingStatus(false));
+    console.log(error);
     alert(`Error retrieving bookings! ${error}`);
   }
 }
