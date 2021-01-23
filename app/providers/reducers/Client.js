@@ -2,6 +2,7 @@ import { actions } from '../actions/Client';
 
 const initialState = {
   barberShops: [],
+  myBookings: [],
   chosenShop: null,
   chosenDate: null,
   isLoading: false,
@@ -25,6 +26,12 @@ export default function clientReducer(state = initialState, action = {}) {
       return {
         ...state,
         chosenDate: action.payload,
+      };
+
+    case actions.PUT.BOOKINGS:
+      return {
+        ...state,
+        myBookings: action.payload,
       };
 
     case actions.PUT.LOADING_STATUS:

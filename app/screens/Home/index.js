@@ -1,78 +1,134 @@
-/* eslint-disable global-require */
-import React, { useState, useEffect } from 'react';
-import {
-  Alert,
-  TouchableOpacity,
-  Text,
-  View,
-  FlatList,
-  Image,
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
-  StyleSheet,
-} from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import {
+  View,
+  Image,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, CardItem } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
+
 import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
+
 import colours from '../../providers/constants/colours';
+import timeList from '../../providers/constants/timeList';
+
+import { getBookings } from '../../providers/actions/Client';
+
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 const styles = StyleSheet.create({
-  navContainer: {
-    flex: 1,
-    backgroundColor: colours.themePrimary,
-    justifyContent: 'center',
-    alignItems: 'center',
+  divider: {
+    marginHorizontal: 16,
+    height: 0.5,
+    width: '100%',
+    backgroundColor: colours.borderGrey,
+    alignSelf: 'center',
   },
-  iconTitle: { fontFamily: 'sans-serif-light', fontSize: 18, color: 'white' },
+  recipeDescription: {
+    marginVertical: 3,
+    width: 220,
+  },
+  bookingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 6,
+  },
+  previewImg: {
+    height: 100,
+    width: 100,
+    resizeMode: 'cover',
+    alignSelf: 'flex-start',
+    borderRadius: 6,
+  },
+  flatlistEmptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  searchBox: {
+    marginTop: 10,
+    marginHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colours.themePrimaryLight,
+    borderRadius: 3,
+    padding: 5,
+  },
 });
 
-const NavIcons = () => (
-  <View style={styles.navContainer}>
-    <View style={{ flexDirection: 'row' }}>
-      <TouchableOpacity style={{ marginRight: 20, alignItems: 'center' }}>
-        <Image
-          source={require('../../../assets/breakfast.png')}
-          style={{ height: 80, width: 80 }}
-        />
-        <Text style={styles.iconTitle}>Breakfast</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={{ marginLeft: 20, alignItems: 'center' }}>
-        <Image
-          source={require('../../../assets/lunch.png')}
-          style={{ height: 80, width: 80 }}
-        />
-        <Text style={styles.iconTitle}>Lunch</Text>
-      </TouchableOpacity>
-    </View>
-
-    <View style={{ flexDirection: 'row' }}>
-      <TouchableOpacity style={{ alignItems: 'center' }}>
-        <Image
-          source={require('../../../assets/dinner.png')}
-          style={{ height: 80, width: 80 }}
-        />
-        <Text style={styles.iconTitle}>Dinner</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
-
-function Home() {
+const RenderItem = ({ item }) => {
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-    >
+    <View style={{ marginTop: 10, padding: 10 }}>
+      <View style={styles.bookingItem}>
+        <View style={{ marginLeft: 10 }}>
+          <Text
+            style={{
+              fontSize: 15,
+              color: colours.lightBlue,
+              marginVertical: 3,
+            }}
+          >
+            {item.service}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+RenderItem.propTypes = {
+  item: PropTypes.string.isRequired,
+};
+
+function Home({ route, navigation }) {
+  const dispatch = useDispatch();
+
+  const { isAdmin, myBookings, isLoading } = useSelector((state) => ({
+    isAdmin: state.userReducer.isAdmin,
+    myBookings: state.clientReducer.myBookings,
+    isLoading: state.clientReducer.isLoading,
+  }));
+
+  useEffect(() => {
+    dispatch(getBookings());
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
       <AppBar />
-      <ScrollView keyboardDismissMode="on-drag">
-        <NavIcons />
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+      <View style={{ padding: 10 }}>
+        <Text style={{ fontSize: 18 }}>My Bookings</Text>
+
+        <View style={styles.divider} />
+      </View>
+
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <FlatList
+          keyExtractor={(item, index) => index.toString()}
+          data={myBookings}
+          renderItem={({ item, index }) => (
+            <RenderItem key={index} item={item} />
+          )}
+          ListEmptyComponent={
+            <View style={styles.flatlistEmptyContainer}>
+              <Text>No bookings</Text>
+            </View>
+          }
+        />
+      )}
+    </View>
   );
 }
 

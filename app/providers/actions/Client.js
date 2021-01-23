@@ -1,11 +1,13 @@
 export const actions = {
   GET: {
     BARBER_SHOPS: 'GET_BARBER_SHOPS',
+    BOOKINGS: 'GET_BOOKINGS',
   },
   PUT: {
     BARBER_SHOPS: 'PUT_BARBER_SHOPS',
     CHOSEN_SHOP: 'PUT_CHOSEN_SHOP',
     CHOSEN_DATE: 'PUT_CHOSEN_DATE',
+    BOOKINGS: 'PUT_BOOKINGS',
     LOADING_STATUS: 'PUT_LOADING_STATUS',
   },
   CONFIRM_BOOKING: 'CONFIRM_BOOKING',
@@ -91,6 +93,15 @@ export const uploadEditedRecipeWithImages = (
     removedPostImgs,
     postId,
   },
+});
+
+export const getBookings = () => ({
+  type: actions.GET.BOOKINGS,
+});
+
+export const putBookings = (bookings) => ({
+  type: actions.PUT.BOOKINGS,
+  payload: bookings,
 });
 
 export const deleteRecipe = (uuid, postId, postImages) => ({

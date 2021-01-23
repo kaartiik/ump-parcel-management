@@ -24,16 +24,13 @@ const config = {
 
 // Initialize Firebase
 if (!firebase.apps.length) {
-  alert(JSON.stringify(config, null, 4));
   firebase.initializeApp(config);
 }
 
 export const f = firebase;
-export const f2 = firebase.initializeApp(config, 'other');
 export const database = firebase.database();
 export const auth = firebase.auth();
 export const storage = firebase.storage();
 
 const rsf = new ReduxSagaFirebase(firebase);
-export const rsf2 = new ReduxSagaFirebase(f2);
 export default rsf;
