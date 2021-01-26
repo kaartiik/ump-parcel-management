@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import colours from '../providers/constants/colours';
 import Home from '../screens/Home';
 import HomeBarber from '../screens/HomeBarber';
+import ChatStack from './ChatStack';
 import InfoStack from './InfoStack';
 import ShopsStack from './ShopsStack';
 
@@ -33,6 +34,8 @@ export default function BottomTabNavigator() {
             iconName = 'ios-add-circle';
           } else if (route.name === 'Shops') {
             iconName = 'ios-add-circle';
+          } else if (route.name === 'Chats') {
+            iconName = 'ios-chatbubbles';
           }
           // else if (route.name === 'Users') {
           //   iconName = 'ios-people';
@@ -40,8 +43,6 @@ export default function BottomTabNavigator() {
           //   iconName = 'ios-people';
           // } else if (route.name === 'Profile') {
           //   iconName = 'ios-person';
-          // } else if (route.name === 'Chats') {
-          //   iconName = 'ios-chatbubbles';
           // }
 
           // You can return any component that you like here!
@@ -62,6 +63,7 @@ export default function BottomTabNavigator() {
       )}
       <Tab.Screen name="Info" component={InfoStack} />
       <Tab.Screen name="Shops" component={ShopsStack} />
+      <Tab.Screen name="Chats" component={ChatStack} />
       {/* <Tab.Screen name="Users" component={Users} />
       <Tab.Screen name="Profile" component={Profile} />
       <Tab.Screen name="Chats" component={HomeScreen} /> */}

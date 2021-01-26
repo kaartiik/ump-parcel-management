@@ -4,12 +4,19 @@ export const actions = {
     REQUEST: 'LOGIN_REQUEST',
   },
   SYNC_USER: 'SYNC_USER',
+  SYNC_CHATS: 'SYNC_CHATS',
+  FORMAT_CHATS: 'FORMAT_CHATS',
   LOGOUT: {
     REQUEST: 'LOGOUT_REQUEST',
+  },
+  GET: {
+    CHAT: 'GET_CHAT',
   },
   PUT: {
     TOKEN: 'PUT_TOKEN',
     USER_PROFILE: 'PUT_USER_PROFILE',
+    USER_CHATS: 'PUT_USER_CHATS',
+    CHATS: 'PUT_CHATS',
     LOADING_STATUS: 'PUT_LOADING_STATUS',
   },
   UPDATE: {
@@ -17,8 +24,32 @@ export const actions = {
   },
 };
 
+export const formatUserChats = (chats) => ({
+  type: actions.FORMAT_CHATS,
+  payload: chats,
+});
+
+export const putUserChats = (chats) => ({
+  type: actions.PUT.USER_CHATS,
+  payload: chats,
+});
+
+export const getChat = (receiverUuid) => ({
+  type: actions.GET.CHAT,
+  payload: receiverUuid,
+});
+
+export const putChats = (chat) => ({
+  type: actions.PUT.CHATS,
+  payload: chat,
+});
+
 export const syncUser = () => ({
   type: actions.SYNC_USER,
+});
+
+export const syncChats = () => ({
+  type: actions.SYNC_CHATS,
 });
 
 export const register = (role, name, mobile, email, password) => ({

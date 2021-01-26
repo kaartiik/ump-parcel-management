@@ -136,10 +136,6 @@ function Home({ route, navigation }) {
     dispatch(getBarberBookings());
   }, []);
 
-  useEffect(() => {
-    console.log(barberBookings);
-  }, [barberBookings]);
-
   return (
     <View style={{ flex: 1 }}>
       <AppBar />

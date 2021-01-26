@@ -8,6 +8,8 @@ const initialState = {
   role: '',
   isAdmin: false,
   token: '',
+  userChats: [],
+  allChats: null,
   isLoading: false,
 };
 
@@ -26,6 +28,18 @@ export default function userReducer(state = initialState, action = {}) {
         token,
       };
     }
+
+    case actions.PUT.USER_CHATS:
+      return {
+        ...state,
+        userChats: action.payload,
+      };
+
+    case actions.PUT.CHATS:
+      return {
+        ...state,
+        allChats: action.payload,
+      };
 
     case actions.PUT.LOADING_STATUS:
       return {

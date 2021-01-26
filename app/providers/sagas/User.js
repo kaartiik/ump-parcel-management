@@ -1,5 +1,13 @@
 /* eslint-disable no-console */
-import { call, put, takeEvery, takeLatest, all } from 'redux-saga/effects';
+import {
+  call,
+  put,
+  takeEvery,
+  takeLatest,
+  all,
+  select,
+  take,
+} from 'redux-saga/effects';
 import * as Permissions from 'expo-permissions';
 import * as Notifications from 'expo-notifications';
 import { navigate, reset } from '../services/NavigatorService';
@@ -9,7 +17,15 @@ import {
   putUserProfile,
   putToken,
   putLoadingStatus,
+  putChats,
+  putUserChats,
 } from '../actions/User';
+
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
+
+const getUuidFromState = (state) => state.userReducer.uuid;
 
 const loginRequest = ({ email, password }) =>
   auth.signInWithEmailAndPassword(email, password);
@@ -182,8 +198,94 @@ function* updateProfileSaga({ payload }) {
   }
 }
 
+function* sendMesssageSaga({ payload }) {
+  const { senderUuid, receiverUuid, message } = payload;
+
+  const messageTime = dayjs().valueOf();
+
+  const msgObject = {
+    from: senderUuid,
+    message: message,
+    time: messageTime,
+  };
+  try {
+    rsf.database.update(
+      `chats/${senderUuid}/${receiverUuid}/${messageTime}`,
+      msgObject
+    );
+    rsf.database.update(
+      `chats/${receiverUuid}/${senderUuid}/${messageTime}`,
+      msgObject
+    );
+  } catch (error) {
+    alert(`Failed to send message. Please try again.`);
+  }
+}
+
+function* loadChatSaga({ payload }) {
+  // yield put(putLoadingStatus(true));
+  console.log(`get chat`);
+  const receiverUuid = payload;
+  const uuid = yield select(getUuidFromState);
+
+  console.log(`using ${uuid} & ${receiverUuid}`);
+
+  const channel = yield call(rsf.database.channel, `chats/${uuid}`, 'value');
+
+  while (true) {
+    const { value } = yield take(channel);
+
+    console.log(value);
+  }
+}
+
+function* syncChatsSaga() {
+  const uuid = yield select(getUuidFromState);
+  const channel = yield call(
+    rsf.database.channel,
+    `chats/${uuid}`,
+    'child_added'
+  );
+
+  while (true) {
+    const { value } = yield take(channel);
+
+    if (value !== null && value !== undefined) {
+      yield put(putChats(value));
+
+      const receiverKeys = Object.keys(value);
+      const allChatsObject = Object.values(value);
+
+      const newUserChats = yield all(
+        receiverKeys.map(function* (key, idx) {
+          const userDetails = yield call(rsf.database.read, `users/${key}`);
+          const chatObject = allChatsObject[idx];
+          const chatMessagesArr = Object.values(chatObject);
+
+          const chatUser = {
+            uid: key,
+            token: userDetails.token,
+            name: userDetails.name,
+            msg: chatMessagesArr[0].message,
+            time: chatMessagesArr[0].time,
+          };
+
+          return chatUser;
+        })
+      );
+      yield put(putUserChats(newUserChats));
+    } else {
+      yield put(putUserChats([]));
+      return;
+    }
+  }
+}
+
 export default function* User() {
   yield all([
+    takeLatest(actions.SYNC_CHATS, syncChatsSaga),
+    takeLatest(actions.GET.CHAT, loadChatSaga),
+    takeLatest(actions.REGISTER_REQUEST, registerSaga),
     takeLatest(actions.REGISTER_REQUEST, registerSaga),
     takeLatest(actions.LOGIN.REQUEST, loginSaga),
     takeLatest(actions.LOGOUT.REQUEST, logoutSaga),

@@ -38,7 +38,7 @@ const AppBar = () => {
         <Body>
           <Image
             // eslint-disable-next-line global-require
-            source={require('../../assets/ResipiIbu.png')}
+            source={require('../../assets/barbershop.png')}
             resizeMode="contain"
             style={{ alignSelf: 'flex-start', height: '100%', width: '150%' }}
           />
