@@ -69,6 +69,9 @@ export default function AddShop({ route, navigation }) {
   const [shopContact, setShopContact] = useState(
     barberShop ? barberShop.shop_contact : ''
   );
+  const [services, setServices] = useState(
+    barberShop ? barberShop.services : ''
+  );
   const [shopOpenTime, setShopOpenTime] = useState(
     barberShop ? dayjs(barberShop.shop_open_time).format('hh:mm A') : ''
   );
@@ -88,7 +91,7 @@ export default function AddShop({ route, navigation }) {
   const fieldRefName = useRef();
   const fieldRefAdd = useRef();
   const fieldRefContact = useRef();
-  const fieldRefOpen = useRef();
+  const fieldRefServices = useRef();
   const fieldRefClose = useRef();
 
   const { isLoading } = useSelector((state) => ({
@@ -124,6 +127,7 @@ export default function AddShop({ route, navigation }) {
       shopName !== '' &&
       shopAddress !== '' &&
       shopContact !== '' &&
+      services !== '' &&
       shopOpenTime !== '' &&
       shopCloseTime !== ''
     ) {
@@ -132,6 +136,7 @@ export default function AddShop({ route, navigation }) {
           shopName,
           shopAddress,
           shopContact,
+          services,
           shopOpenTimeUnix,
           shopCloseTimeUnix,
           () => navigation.navigate('BarberShopInfo')
@@ -148,14 +153,17 @@ export default function AddShop({ route, navigation }) {
       shopName !== '' &&
       shopAddress !== '' &&
       shopContact !== '' &&
+      services !== '' &&
       shopOpenTime !== '' &&
       shopCloseTime !== ''
     ) {
       dispatch(
-        addBarberShop(
+        editBarberShop(
+          shopUid,
           shopName,
           shopAddress,
           shopContact,
+          services,
           shopOpenTimeUnix,
           shopCloseTimeUnix,
           () => navigation.navigate('BarberShopInfo')
@@ -213,6 +221,18 @@ export default function AddShop({ route, navigation }) {
                 </View>
                 <Text style={{ color: 'red' }}>
                   {submitCount > 0 && shopAddress === '' && 'Required'}
+                </Text>
+
+                <View style={styles.textboxContainer}>
+                  <TextInput
+                    ref={fieldRefServices}
+                    placeholder="Enter services..."
+                    value={services}
+                    onChangeText={(text) => setServices(text)}
+                  />
+                </View>
+                <Text style={{ color: 'red' }}>
+                  {submitCount > 0 && services === '' && 'Required'}
                 </Text>
 
                 <Text>Opening Time</Text>

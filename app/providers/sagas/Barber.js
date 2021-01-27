@@ -39,21 +39,20 @@ function* getBarberShopInfoSaga() {
     const isAdmin = yield select(getIsAdminFromState);
 
     if (!isAdmin) {
-      console.log(isAdmin);
       reset('Home');
       return;
     }
 
+    console.log(uuid);
     const data = yield call(rsf.database.read, `users/${uuid}/barber_shops`);
 
     const exists = data !== null && data !== undefined;
     if (exists) {
+      console.log(data);
       yield put(putBarberShop(data));
       yield put(putLoadingStatus(false));
-      console.log('shop exist');
       reset('HomeBarber');
     } else {
-      console.log('shop doenst exist');
       yield put(putLoadingStatus(false));
       reset('Info', { screen: 'AddShop' });
     }
@@ -70,6 +69,7 @@ function* addBarberShopSaga({ payload }) {
       shopName,
       shopAddress,
       shopContact,
+      services,
       shopOpenTime,
       shopCloseTime,
       onSuccess,
@@ -81,6 +81,7 @@ function* addBarberShopSaga({ payload }) {
       shop_name: shopName,
       shop_address: shopAddress,
       shop_contact: shopContact,
+      services: services,
       shop_open_time: shopOpenTime,
       shop_close_time: shopCloseTime,
       shop_uid: shopKey,
@@ -111,6 +112,7 @@ function* editBarberShopSaga({ payload }) {
       shopName,
       shopAddress,
       shopContact,
+      services,
       shopOpenTime,
       shopCloseTime,
       onSuccess,
@@ -121,6 +123,7 @@ function* editBarberShopSaga({ payload }) {
       shop_name: shopName,
       shop_address: shopAddress,
       shop_contact: shopContact,
+      services: services,
       shop_open_time: shopOpenTime,
       shop_close_time: shopCloseTime,
       shop_uid: shopUid,
@@ -160,27 +163,33 @@ function* getBarberBookingsSaga() {
         rsf.database.read,
         `barber_shops/${shopUid}/bookings`
       );
-      const bookingsArr = Object.values(bookingsObj);
 
-      const bookingsArrFormated = yield all(
-        bookingsArr.map(function* (booking) {
-          const clientInfo = yield call(
-            rsf.database.read,
-            `users/${booking.client_uid}`
-          );
+      if (bookingsObj !== null && bookingsObj !== undefined) {
+        const bookingsArr = Object.values(bookingsObj);
 
-          delete clientInfo['bookings'];
+        const bookingsArrFormated = yield all(
+          bookingsArr.map(function* (booking) {
+            const clientInfo = yield call(
+              rsf.database.read,
+              `users/${booking.client_uid}`
+            );
 
-          const bookingWithClient = {
-            ...booking,
-            ...clientInfo,
-          };
-          return bookingWithClient;
-        })
-      );
+            delete clientInfo['bookings'];
 
-      yield put(putBarberBookings(bookingsArrFormated));
-      yield put(putLoadingStatus(false));
+            const bookingWithClient = {
+              ...booking,
+              ...clientInfo,
+            };
+            return bookingWithClient;
+          })
+        );
+
+        yield put(putBarberBookings(bookingsArrFormated));
+        yield put(putLoadingStatus(false));
+      } else {
+        yield put(putBarberBookings([]));
+        yield put(putLoadingStatus(false));
+      }
     } else {
       yield put(putBarberBookings([]));
       yield put(putLoadingStatus(false));

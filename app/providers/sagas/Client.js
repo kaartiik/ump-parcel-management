@@ -123,8 +123,6 @@ function* getMyBookingsSaga() {
       })
     );
 
-    console.log(bookingsArrFormated);
-
     yield put(putBookings(bookingsArrFormated));
     yield put(putLoadingStatus(false));
   } catch (error) {

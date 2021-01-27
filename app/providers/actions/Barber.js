@@ -40,6 +40,7 @@ export const addBarberShop = (
   shopName,
   shopAddress,
   shopContact,
+  services,
   shopOpenTime,
   shopCloseTime,
   onSuccess
@@ -49,6 +50,7 @@ export const addBarberShop = (
     shopName,
     shopAddress,
     shopContact,
+    services,
     shopOpenTime,
     shopCloseTime,
     onSuccess,
@@ -60,6 +62,7 @@ export const editBarberShop = (
   shopName,
   shopAddress,
   shopContact,
+  services,
   shopOpenTime,
   shopCloseTime,
   onSuccess
@@ -70,6 +73,7 @@ export const editBarberShop = (
     shopName,
     shopAddress,
     shopContact,
+    services,
     shopOpenTime,
     shopCloseTime,
     onSuccess,

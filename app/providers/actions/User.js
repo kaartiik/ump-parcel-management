@@ -12,6 +12,7 @@ export const actions = {
   GET: {
     CHAT: 'GET_CHAT',
   },
+  SEND_MESSAGE: 'SEND_MESSAGE',
   PUT: {
     TOKEN: 'PUT_TOKEN',
     USER_PROFILE: 'PUT_USER_PROFILE',
@@ -23,6 +24,11 @@ export const actions = {
     USER_PROFILE: 'UPDATE_USER_PROFILE',
   },
 };
+
+export const sendMessage = (receiverUuid, message) => ({
+  type: actions.SEND_MESSAGE,
+  payload: { receiverUuid, message },
+});
 
 export const formatUserChats = (chats) => ({
   type: actions.FORMAT_CHATS,

@@ -14,10 +14,11 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import PushNotification from '../../providers/PushNotification';
-import { getChat } from '../../providers/actions/User';
+import { sendMessage } from '../../providers/actions/User';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import colours from '../../providers/constants/colours';
 dayjs.extend(customParseFormat);
 
 const styles = StyleSheet.create({
@@ -60,7 +61,6 @@ const styles = StyleSheet.create({
   chatTxtInput: {
     borderWidth: 1,
     borderColor: '#ccc',
-    height: '85%',
     width: '85%',
     borderRadius: 5,
     marginBottom: 3,
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   chtBtn: {
-    backgroundColor: '#E84C3D',
+    backgroundColor: colours.themePrimary,
     width: 50,
     height: 50,
     borderRadius: 50,
@@ -99,37 +99,17 @@ export default function ChatScreen({ route, navigation }) {
   useEffect(() => {
     const msgArr = allChats !== null ? Object.values(allChats[uidClicked]) : [];
     setExistingMsgs(msgArr);
-  }, []);
+  }, [allChats]);
 
-  const sendMessage = async () => {
+  const handleSendMessage = async () => {
     if (textMessage.length > 0) {
-      let msgId = database
-        .ref('Messages')
-        .child(CurrentUser.uid)
-        .child(uidClicked)
-        .push().key;
-      let updates = {};
-      let timestamp = Date.now();
-      let message = {
-        message: textMessage,
-        time: timestamp,
-        from: CurrentUser.uid,
-      };
-      updates[
-        'Messages/' + CurrentUser.uid + '/' + uidClicked + '/' + msgId
-      ] = message;
-      updates[
-        'Messages/' + uidClicked + '/' + CurrentUser.uid + '/' + msgId
-      ] = message;
-      f.database().ref().update(updates);
+      dispatch(sendMessage(uidClicked, textMessage));
 
-      setTextMessage('');
-
-      new PushNotification().sendPushNotification(
-        tokenClicked,
-        CurrentUser.name,
-        textMessage
-      ); //latest added
+      // new PushNotification().sendPushNotification(
+      //   tokenClicked,
+      //   CurrentUser.name,
+      //   textMessage
+      // );
     }
   };
 
@@ -201,7 +181,10 @@ export default function ChatScreen({ route, navigation }) {
           onChangeText={(val) => setTextMessage(val)}
         />
 
-        <TouchableOpacity onPress={sendMessage} style={styles.chtBtn}>
+        <TouchableOpacity
+          onPress={() => handleSendMessage()}
+          style={styles.chtBtn}
+        >
           <Ionicons name="ios-send" size={28} color={'white'} />
         </TouchableOpacity>
       </View>

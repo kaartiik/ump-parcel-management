@@ -199,7 +199,8 @@ function* updateProfileSaga({ payload }) {
 }
 
 function* sendMesssageSaga({ payload }) {
-  const { senderUuid, receiverUuid, message } = payload;
+  const { receiverUuid, message } = payload;
+  const senderUuid = yield select(getUuidFromState);
 
   const messageTime = dayjs().valueOf();
 
@@ -207,7 +208,9 @@ function* sendMesssageSaga({ payload }) {
     from: senderUuid,
     message: message,
     time: messageTime,
+    to: receiverUuid,
   };
+  console.log(msgObject);
   try {
     rsf.database.update(
       `chats/${senderUuid}/${receiverUuid}/${messageTime}`,
@@ -222,44 +225,25 @@ function* sendMesssageSaga({ payload }) {
   }
 }
 
-function* loadChatSaga({ payload }) {
-  // yield put(putLoadingStatus(true));
-  console.log(`get chat`);
-  const receiverUuid = payload;
-  const uuid = yield select(getUuidFromState);
-
-  console.log(`using ${uuid} & ${receiverUuid}`);
-
-  const channel = yield call(rsf.database.channel, `chats/${uuid}`, 'value');
-
-  while (true) {
-    const { value } = yield take(channel);
-
-    console.log(value);
-  }
-}
-
 function* syncChatsSaga() {
   const uuid = yield select(getUuidFromState);
-  const channel = yield call(
-    rsf.database.channel,
-    `chats/${uuid}`,
-    'child_added'
-  );
+  const channel = yield call(rsf.database.channel, `chats/${uuid}`);
 
   while (true) {
     const { value } = yield take(channel);
 
     if (value !== null && value !== undefined) {
-      yield put(putChats(value));
-
-      const receiverKeys = Object.keys(value);
+      // const receiverKeys = Object.keys(value);
       const allChatsObject = Object.values(value);
+      const receiverKeys = Object.keys(allChatsObject[0]);
+      // const allMessagesObj = Object.values(allChatsObject);
+      const allMessagesArr = Object.values(allChatsObject[0]);
+      yield put(putChats(allChatsObject[0]));
 
       const newUserChats = yield all(
         receiverKeys.map(function* (key, idx) {
           const userDetails = yield call(rsf.database.read, `users/${key}`);
-          const chatObject = allChatsObject[idx];
+          const chatObject = allMessagesArr[idx];
           const chatMessagesArr = Object.values(chatObject);
 
           const chatUser = {
@@ -284,13 +268,12 @@ function* syncChatsSaga() {
 export default function* User() {
   yield all([
     takeLatest(actions.SYNC_CHATS, syncChatsSaga),
-    takeLatest(actions.GET.CHAT, loadChatSaga),
     takeLatest(actions.REGISTER_REQUEST, registerSaga),
     takeLatest(actions.REGISTER_REQUEST, registerSaga),
     takeLatest(actions.LOGIN.REQUEST, loginSaga),
     takeLatest(actions.LOGOUT.REQUEST, logoutSaga),
     takeEvery(actions.SYNC_USER, syncUserSaga),
     takeLatest(actions.UPDATE.USER_PROFILE, updateProfileSaga),
-    //   takeEvery(actions.PROFILE.UPDATE, updateProfileSaga),
+    takeLatest(actions.SEND_MESSAGE, sendMesssageSaga),
   ]);
 }

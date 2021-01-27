@@ -31,7 +31,7 @@ export default function BottomTabNavigator() {
           } else if (route.name === 'HomeBarber') {
             iconName = 'ios-home';
           } else if (route.name === 'Info') {
-            iconName = 'ios-add-circle';
+            iconName = 'ios-information-circle';
           } else if (route.name === 'Shops') {
             iconName = 'ios-add-circle';
           } else if (route.name === 'Chats') {
@@ -57,11 +57,13 @@ export default function BottomTabNavigator() {
       }}
     >
       {isAdmin ? (
-        <Tab.Screen name="HomeBarber" component={HomeBarber} />
+        <>
+          <Tab.Screen name="HomeBarber" component={HomeBarber} />
+          <Tab.Screen name="Info" component={InfoStack} />
+        </>
       ) : (
         <Tab.Screen name="Home" component={Home} />
       )}
-      <Tab.Screen name="Info" component={InfoStack} />
       <Tab.Screen name="Shops" component={ShopsStack} />
       <Tab.Screen name="Chats" component={ChatStack} />
       {/* <Tab.Screen name="Users" component={Users} />
