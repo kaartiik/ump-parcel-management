@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
-
+import { useNavigation } from '@react-navigation/native';
 import colours from '../../providers/constants/colours';
 import timeList from '../../providers/constants/timeList';
 
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
 });
 
 const RenderItem = ({ item }) => {
+  const navigation = useNavigation();
   return (
     <View style={{ marginTop: 10, padding: 10 }}>
       <View style={styles.bookingItem}>
@@ -91,6 +92,19 @@ const RenderItem = ({ item }) => {
         <Text>{item.shop_name}</Text>
         <Text>{item.shop_contact}</Text>
         <Text>{item.shop_address}</Text>
+        <TouchableOpacity
+        // onPress={() => navigation.navigate('ChatScreen', {
+        //     nameClicked: item.name,
+        //     uidClicked: item.uid,
+        //     tokenClicked: item.token,
+        //   })}
+        >
+          <Ionicons
+            name="ios-chatbubble"
+            size={18}
+            color={colours.themePrimary}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );

@@ -85,6 +85,7 @@ function* addBarberShopSaga({ payload }) {
       shop_open_time: shopOpenTime,
       shop_close_time: shopCloseTime,
       shop_uid: shopKey,
+      owner_uuid: uuid,
     };
 
     yield call(rsf.database.update, `barber_shops/${shopKey}`, barberShopObj);
@@ -127,6 +128,7 @@ function* editBarberShopSaga({ payload }) {
       shop_open_time: shopOpenTime,
       shop_close_time: shopCloseTime,
       shop_uid: shopUid,
+      owner_uuid: uuid,
     };
 
     yield call(rsf.database.update, `barber_shops/${shopUid}`, barberShopObj);
