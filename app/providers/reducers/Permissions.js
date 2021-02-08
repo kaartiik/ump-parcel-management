@@ -3,7 +3,7 @@ import { actions } from '../actions/Permissions';
 const initialState = {
   calendarId: -1,
   calendarPermission: false,
-  remindersPermission: false,
+  notificationPermission: false,
 };
 
 export default function permissionsReducer(state = initialState, action = {}) {
@@ -20,10 +20,10 @@ export default function permissionsReducer(state = initialState, action = {}) {
         calendarPermission: action.payload,
       };
 
-    case actions.PUT.REMINDERS_PERMISSION:
+    case actions.PUT.NOTIFICATIONS_PERMISSION:
       return {
         ...state,
-        remindersPermission: action.payload,
+        notificationPermission: action.payload,
       };
 
     default:

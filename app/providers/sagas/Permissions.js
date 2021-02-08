@@ -8,7 +8,7 @@ import {
   actions,
   putCalendarId,
   putCalendarPermission,
-  putRemindersPermission,
+  putNotificationPermission,
 } from '../actions/Permissions';
 
 async function createCalendar() {
@@ -30,9 +30,9 @@ function* checkPermissionsSaga() {
     Permissions.getAsync,
     Permissions.CALENDAR
   );
-  const { status: remindersStatus } = yield call(
+  const { status: notificationStatus } = yield call(
     Permissions.getAsync,
-    Permissions.REMINDERS
+    Permissions.NOTIFICATIONS
   );
 
   if (calendarStatus !== 'granted') {
@@ -59,18 +59,18 @@ function* checkPermissionsSaga() {
     console.log(appCalendar.id);
   }
 
-  // if (remindersStatus !== 'granted') {
-  //   const { status: reStatus } = yield call(
-  //     Permissions.askAsync,
-  //     Permissions.REMINDERS
-  //   );
+  if (notificationStatus !== 'granted') {
+    const { status: reStatus } = yield call(
+      Permissions.askAsync,
+      Permissions.NOTIFICATIONS
+    );
 
-  //   if (reStatus !== 'granted') {
-  //     alert(`We need reminders permission to make this work`);
-  //   } else {
-  //     yield put(putRemindersPermission(true));
-  //   }
-  // }
+    if (reStatus !== 'granted') {
+      alert(`We need notifications permission to make this work`);
+    } else {
+      yield put(putNotificationPermission(true));
+    }
+  }
 }
 
 export default function* AllPermissions() {

@@ -3,7 +3,7 @@ export const actions = {
   PUT: {
     CALENDAR_ID: 'PUT_CALENDAR_ID',
     CALENDAR_PERMISSION: 'PUT_CALENDAR_PERMISSION',
-    REMINDERS_PERMISSION: 'PUT_REMINDERS_PERMISSION',
+    NOTIFICATIONS_PERMISSION: 'PUT_NOTIFICATIONS_PERMISSION',
   },
 };
 
@@ -21,7 +21,7 @@ export const putCalendarPermission = (permission) => ({
   payload: permission,
 });
 
-export const putRemindersPermission = (permission) => ({
-  type: actions.PUT.REMINDERS_PERMISSION,
+export const putNotificationPermission = (permission) => ({
+  type: actions.PUT.NOTIFICATIONS_PERMISSION,
   payload: permission,
 });
