@@ -25,9 +25,9 @@ export const actions = {
   },
 };
 
-export const sendMessage = (receiverUuid, message) => ({
+export const sendMessage = (receiverUuid, receiverToken, message) => ({
   type: actions.SEND_MESSAGE,
-  payload: { receiverUuid, message },
+  payload: { receiverUuid, receiverToken, message },
 });
 
 export const formatUserChats = (chats) => ({

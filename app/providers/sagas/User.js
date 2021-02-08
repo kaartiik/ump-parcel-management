@@ -26,6 +26,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
 const getUuidFromState = (state) => state.userReducer.uuid;
+const getNameFromState = (state) => state.userReducer.name;
 
 const loginRequest = ({ email, password }) =>
   auth.signInWithEmailAndPassword(email, password);
@@ -198,9 +199,30 @@ function* updateProfileSaga({ payload }) {
   }
 }
 
+const sendPushNotification = async (receiverToken, senderName, senderMsg) => {
+  const message = {
+    to: receiverToken,
+    sound: 'default',
+    title: senderName,
+    body: senderMsg,
+    data: { data: 'goes here' },
+    _displayInForeground: true,
+  };
+  const response = await fetch('https://exp.host/--/api/v2/push/send', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Accept-encoding': 'gzip, deflate',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
+  });
+};
+
 function* sendMesssageSaga({ payload }) {
-  const { receiverUuid, message } = payload;
+  const { receiverUuid, receiverToken, message } = payload;
   const senderUuid = yield select(getUuidFromState);
+  const senderName = yield select(getNameFromState);
 
   const messageTime = dayjs().valueOf();
 
@@ -220,6 +242,8 @@ function* sendMesssageSaga({ payload }) {
       `chats/${receiverUuid}/${senderUuid}/${messageTime}`,
       msgObject
     );
+
+    sendPushNotification(receiverToken, senderName, message);
   } catch (error) {
     alert(`Failed to send message. Please try again.`);
   }

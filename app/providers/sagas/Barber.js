@@ -11,6 +11,7 @@ import {
   all,
   fork,
 } from 'redux-saga/effects';
+import * as Calendar from 'expo-calendar';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import rsf, { database } from '../config';
@@ -206,7 +207,7 @@ function* getBarberBookingsSaga() {
 function* updateBookingStatusSaga({ payload }) {
   yield put(putLoadingStatus(true));
 
-  const { shopUid, clientUid, bookingUid, status } = payload;
+  const { shopUid, clientUid, bookingUid, timestamp, status } = payload;
 
   try {
     yield call(
@@ -219,6 +220,15 @@ function* updateBookingStatusSaga({ payload }) {
       `users/${clientUid}/bookings/${bookingUid}/status`,
       status
     );
+
+    const details = {
+      title: 'Client Appointment',
+      startDate: new Date(timestamp),
+      endDate: new Date(timestamp),
+      allDay: true,
+      timeZone: 'Asia/Kuala_Lumpur',
+    };
+    yield call(Calendar.createEventAsync(calendarId, details));
 
     yield call(getBarberBookingsSaga);
     yield put(putLoadingStatus(false));

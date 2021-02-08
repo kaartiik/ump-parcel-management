@@ -20,6 +20,7 @@ async function createCalendar() {
     name: 'internalCalendarName',
     ownerAccount: 'personal',
     accessLevel: Calendar.CalendarAccessLevel.OWNER,
+    timeZone: 'Asia/Kuala_Lumpur',
   });
   return newCalendarID;
 }

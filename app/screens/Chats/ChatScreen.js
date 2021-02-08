@@ -103,7 +103,7 @@ export default function ChatScreen({ route, navigation }) {
 
   const handleSendMessage = async () => {
     if (textMessage.length > 0) {
-      dispatch(sendMessage(uidClicked, textMessage));
+      dispatch(sendMessage(uidClicked, tokenClicked, textMessage));
 
       // new PushNotification().sendPushNotification(
       //   tokenClicked,

@@ -21,10 +21,11 @@ export const updateBookingStatus = (
   shopUid,
   clientUid,
   bookingUid,
+  timestamp,
   status
 ) => ({
   type: actions.UPDATE_BOOKING_STATUS,
-  payload: { shopUid, clientUid, bookingUid, status },
+  payload: { shopUid, clientUid, bookingUid, timestamp, status },
 });
 
 export const getBarberShop = () => ({

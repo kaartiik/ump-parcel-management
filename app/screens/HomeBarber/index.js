@@ -106,6 +106,7 @@ const RenderItem = ({ item }) => {
                 item.shop_uid,
                 item.client_uid,
                 item.booking_uid,
+                item.booking_time,
                 value
               )
             )

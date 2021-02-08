@@ -14,6 +14,7 @@ import {
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import rsf, { database } from '../config';
+import * as Calendar from 'expo-calendar';
 import {
   actions,
   putBarberShops,
@@ -25,7 +26,7 @@ dayjs.extend(customParseFormat);
 
 const getUuidFromState = (state) => state.userReducer.uuid;
 
-const getUserNameFromState = (state) => state.userReducer.name;
+const getCalendarIdFromState = (state) => state.permissionsReducer.calendarId;
 
 const getUserAvatarFromState = (state) => state.userReducer.avatar;
 
@@ -51,6 +52,7 @@ function* getBarberShopsSaga() {
 
 function* confirmBookingSaga({ payload }) {
   yield put(putLoadingStatus(true));
+  const calendarId = yield select(getCalendarIdFromState);
 
   const {
     shopUid,
@@ -87,6 +89,16 @@ function* confirmBookingSaga({ payload }) {
       `users/${uuid}/bookings/${bookingKey}`,
       bookingObject
     );
+
+    const details = {
+      title: 'Barber Shop Appointment',
+      startDate: new Date(timestamp),
+      endDate: new Date(timestamp),
+      allDay: true,
+      timeZone: 'Asia/Kuala_Lumpur',
+    };
+    yield call(Calendar.createEventAsync(calendarId, details));
+
     yield put(putLoadingStatus(false));
 
     alert(`Booking made!`);
@@ -104,7 +116,10 @@ function* getMyBookingsSaga() {
 
   try {
     const bookingsObj = yield call(rsf.database.read, `users/${uuid}/bookings`);
-    const bookingsArr = Object.values(bookingsObj);
+    const bookingsArr =
+      bookingsObj !== null && bookingsObj !== undefined
+        ? Object.values(bookingsObj)
+        : [];
 
     const bookingsArrFormated = yield all(
       bookingsArr.map(function* (booking) {
