@@ -56,6 +56,7 @@ function* confirmBookingSaga({ payload }) {
 
   const {
     shopUid,
+    ownerUuid,
     service,
     timestamp,
     uuid,
@@ -75,6 +76,7 @@ function* confirmBookingSaga({ payload }) {
     client_mobile: userMobile,
     client_email: userEmail,
     shop_uid: shopUid,
+    owner_uuid: ownerUuid,
     status: 'Pending',
   };
 

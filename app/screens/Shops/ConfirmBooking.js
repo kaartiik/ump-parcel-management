@@ -121,6 +121,7 @@ export default function ConfirmBooking({ route, navigation }) {
       dispatch(
         confirmBooking(
           shopItem.shop_uid,
+          shopItem.owner_uuid,
           service,
           timestamp,
           uuid,

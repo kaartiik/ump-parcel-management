@@ -46,6 +46,7 @@ export const putChosenDate = (date) => ({
 
 export const confirmBooking = (
   shopUid,
+  ownerUuid,
   service,
   timestamp,
   uuid,
@@ -56,6 +57,7 @@ export const confirmBooking = (
   type: actions.CONFIRM_BOOKING,
   payload: {
     shopUid,
+    ownerUuid,
     service,
     timestamp,
     uuid,
