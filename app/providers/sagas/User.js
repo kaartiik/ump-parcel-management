@@ -232,20 +232,22 @@ function* sendMesssageSaga({ payload }) {
     time: messageTime,
     to: receiverUuid,
   };
-  console.log(msgObject);
+
   try {
-    rsf.database.update(
+    yield call(
+      rsf.database.update,
       `chats/${senderUuid}/${receiverUuid}/${messageTime}`,
       msgObject
     );
-    rsf.database.update(
+    yield call(
+      rsf.database.update,
       `chats/${receiverUuid}/${senderUuid}/${messageTime}`,
       msgObject
     );
 
-    sendPushNotification(receiverToken, senderName, message);
+    // sendPushNotification(receiverToken, senderName, message);
   } catch (error) {
-    alert(`Failed to send message. Please try again.`);
+    alert(`Failed to send message. Please try again. ${error}`);
   }
 }
 
@@ -289,6 +291,27 @@ function* syncChatsSaga() {
   }
 }
 
+function* getChatUserDetailsSaga({ payload }) {
+  const userUuid = payload;
+
+  try {
+    const userDetails = yield call(rsf.database.read, `users/${userUuid}`);
+
+    console.log(userDetails);
+
+    yield call(navigate, 'Chats', {
+      screen: 'ChatScreen',
+      params: {
+        nameClicked: userDetails.name,
+        uidClicked: userDetails.uuid,
+        tokenClicked: userDetails.token,
+      },
+    });
+  } catch (error) {
+    alert(`Failed to retrieve user.`);
+  }
+}
+
 export default function* User() {
   yield all([
     takeLatest(actions.SYNC_CHATS, syncChatsSaga),
@@ -299,5 +322,6 @@ export default function* User() {
     takeEvery(actions.SYNC_USER, syncUserSaga),
     takeLatest(actions.UPDATE.USER_PROFILE, updateProfileSaga),
     takeLatest(actions.SEND_MESSAGE, sendMesssageSaga),
+    takeLatest(actions.GET.CHAT_USER_DETAILS, getChatUserDetailsSaga),
   ]);
 }

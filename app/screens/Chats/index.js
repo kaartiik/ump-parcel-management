@@ -40,6 +40,8 @@ export default function Chats({ route, navigation }) {
     isLoading: state.userReducer.isLoading,
   }));
 
+  console.log(userChats);
+
   const renderRow = ({ item }) => {
     return (
       <TouchableOpacity
@@ -85,7 +87,13 @@ export default function Chats({ route, navigation }) {
           renderItem={renderRow}
           keyExtractor={(item, index) => index.toString()}
           ListEmptyComponent={
-            <View style={styles.flatlistEmptyContainer}>
+            <View
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
               <Text>No chats</Text>
             </View>
           }

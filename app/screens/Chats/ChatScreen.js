@@ -97,7 +97,13 @@ export default function ChatScreen({ route, navigation }) {
   }));
 
   useEffect(() => {
-    const msgArr = allChats !== null ? Object.values(allChats[uidClicked]) : [];
+    const msgArr =
+      allChats !== null &&
+      uidClicked !== null &&
+      uidClicked !== undefined &&
+      uidClicked !== ''
+        ? Object.values(allChats[uidClicked])
+        : [];
     setExistingMsgs(msgArr);
   }, [allChats]);
 
@@ -142,7 +148,7 @@ export default function ChatScreen({ route, navigation }) {
     >
       <View style={styles.screenHeader}>
         <View style={{ flex: 1 }}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.navigate('Chats')}>
             <Ionicons
               style={{ padding: 10 }}
               name="ios-arrow-back"

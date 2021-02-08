@@ -19,6 +19,7 @@ import colours from '../../providers/constants/colours';
 import timeList from '../../providers/constants/timeList';
 
 import { getBookings } from '../../providers/actions/Client';
+import { getChatUserDetails } from '../../providers/actions/User';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -66,6 +67,7 @@ const styles = StyleSheet.create({
 
 const RenderItem = ({ item }) => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   return (
     <View style={{ marginTop: 10, padding: 10 }}>
       <View style={styles.bookingItem}>
@@ -94,7 +96,7 @@ const RenderItem = ({ item }) => {
         <Text>{item.shop_address}</Text>
         <TouchableOpacity
           onPress={
-            () => alert(item.name, item.uid, item.token)
+            () => dispatch(getChatUserDetails(item.owner_uuid))
             // navigation.navigate('ChatScreen', {
             //   nameClicked: item.name,
             //   uidClicked: item.uid,

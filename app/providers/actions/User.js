@@ -11,6 +11,7 @@ export const actions = {
   },
   GET: {
     CHAT: 'GET_CHAT',
+    CHAT_USER_DETAILS: 'GET_CHAT_USER_DETAILS',
   },
   SEND_MESSAGE: 'SEND_MESSAGE',
   PUT: {
@@ -24,6 +25,11 @@ export const actions = {
     USER_PROFILE: 'UPDATE_USER_PROFILE',
   },
 };
+
+export const getChatUserDetails = (userUuid) => ({
+  type: actions.GET.CHAT_USER_DETAILS,
+  payload: userUuid,
+});
 
 export const sendMessage = (receiverUuid, receiverToken, message) => ({
   type: actions.SEND_MESSAGE,
