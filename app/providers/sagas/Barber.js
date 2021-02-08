@@ -27,6 +27,8 @@ dayjs.extend(customParseFormat);
 
 const getShopFromState = (state) => state.barberReducer.barberShop;
 
+const getCalendarIdFromState = (state) => state.permissionsReducer.calendarId;
+
 const getUuidFromState = (state) => state.userReducer.uuid;
 
 const getIsAdminFromState = (state) => state.userReducer.isAdmin;
@@ -206,6 +208,7 @@ function* getBarberBookingsSaga() {
 
 function* updateBookingStatusSaga({ payload }) {
   yield put(putLoadingStatus(true));
+  const calendarId = yield select(getCalendarIdFromState);
 
   const { shopUid, clientUid, bookingUid, timestamp, status } = payload;
 

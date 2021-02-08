@@ -12,7 +12,7 @@ import {
 import { Picker } from 'native-base';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
 
@@ -133,9 +133,11 @@ function Home({ route, navigation }) {
     isLoading: state.clientReducer.isLoading,
   }));
 
-  useEffect(() => {
-    dispatch(getBarberBookings());
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getBarberBookings());
+    }, [])
+  );
 
   return (
     <View style={{ flex: 1 }}>

@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colours from '../../providers/constants/colours';
 import timeList from '../../providers/constants/timeList';
 
@@ -93,11 +93,14 @@ const RenderItem = ({ item }) => {
         <Text>{item.shop_contact}</Text>
         <Text>{item.shop_address}</Text>
         <TouchableOpacity
-        // onPress={() => navigation.navigate('ChatScreen', {
-        //     nameClicked: item.name,
-        //     uidClicked: item.uid,
-        //     tokenClicked: item.token,
-        //   })}
+          onPress={
+            () => alert(item.name, item.uid, item.token)
+            // navigation.navigate('ChatScreen', {
+            //   nameClicked: item.name,
+            //   uidClicked: item.uid,
+            //   tokenClicked: item.token,
+            // })
+          }
         >
           <Ionicons
             name="ios-chatbubble"
@@ -123,9 +126,11 @@ function Home({ route, navigation }) {
     isLoading: state.clientReducer.isLoading,
   }));
 
-  useEffect(() => {
-    dispatch(getBookings());
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getBookings());
+    }, [])
+  );
 
   return (
     <View style={{ flex: 1 }}>

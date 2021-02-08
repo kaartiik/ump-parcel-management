@@ -97,7 +97,7 @@ function* confirmBookingSaga({ payload }) {
       allDay: true,
       timeZone: 'Asia/Kuala_Lumpur',
     };
-    yield call(Calendar.createEventAsync(calendarId, details));
+    yield call(Calendar.createEventAsync, calendarId, details);
 
     yield put(putLoadingStatus(false));
 
