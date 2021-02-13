@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { Platform } from 'react-native';
 import {
   call,
   put,
@@ -106,7 +107,7 @@ function* syncUserSaga() {
   if (user) {
     const { token: pushToken } = yield call(getExpoToken);
 
-    console.log(pushToken);
+    yield call(rsf.database.update, `users/${user.uid}/token`, pushToken.data);
 
     const { dbUser } = yield call(getUserProfile, user.uid);
 
@@ -216,6 +217,9 @@ const sendPushNotification = async (receiverToken, senderName, senderMsg) => {
     data: { data: 'goes here' },
     _displayInForeground: true,
   };
+
+  console.log(message);
+
   const response = await fetch('https://exp.host/--/api/v2/push/send', {
     method: 'POST',
     headers: {
@@ -253,7 +257,7 @@ function* sendMesssageSaga({ payload }) {
       msgObject
     );
 
-    sendPushNotification(receiverToken, senderName, message);
+    yield call(sendPushNotification, receiverToken, senderName, message);
   } catch (error) {
     alert(`Failed to send message. Please try again. ${error}`);
   }

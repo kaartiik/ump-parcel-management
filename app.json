@@ -17,9 +17,12 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.example.barberapp",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.example.barberapp",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

@@ -9,6 +9,7 @@ import {
   isMountedRef,
 } from './app/providers/services/NavigatorService';
 import AppNavigator from './app/navigation/navigator';
+import pushNotificationListener from './app/providers/pushnotifications';
 
 LogBox.ignoreAllLogs();
 
@@ -20,6 +21,8 @@ const App = () => {
       isMountedRef.current = false;
     };
   }, []);
+
+  pushNotificationListener();
 
   return (
     <Provider store={store}>
