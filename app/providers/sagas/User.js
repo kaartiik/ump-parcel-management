@@ -7,7 +7,9 @@ import {
   all,
   select,
   take,
+  fork,
 } from 'redux-saga/effects';
+import { eventChannel } from 'redux-saga';
 import * as Permissions from 'expo-permissions';
 import * as Notifications from 'expo-notifications';
 import { navigate, reset } from '../services/NavigatorService';
@@ -102,10 +104,16 @@ function* syncUserSaga() {
   const user = yield call(onAuthStateChanged);
 
   if (user) {
+    const { token: pushToken } = yield call(getExpoToken);
+
+    console.log(pushToken);
+
     const { dbUser } = yield call(getUserProfile, user.uid);
 
     if (dbUser !== null && dbUser !== undefined) {
       yield put(putUserProfile(dbUser));
+
+      yield fork(startListener);
 
       setTimeout(() => {
         reset('AppStack');
@@ -245,7 +253,7 @@ function* sendMesssageSaga({ payload }) {
       msgObject
     );
 
-    // sendPushNotification(receiverToken, senderName, message);
+    sendPushNotification(receiverToken, senderName, message);
   } catch (error) {
     alert(`Failed to send message. Please try again. ${error}`);
   }
@@ -253,23 +261,64 @@ function* sendMesssageSaga({ payload }) {
 
 function* syncChatsSaga() {
   const uuid = yield select(getUuidFromState);
-  const channel = yield call(rsf.database.channel, `chats/${uuid}`);
+  const chats = yield call(rsf.database.read, `chats/${uuid}`);
 
+  // const { value } = yield take(channel);
+
+  if (chats !== null && chats !== undefined) {
+    const receiverKeys = Object.keys(chats);
+    yield put(putChats(chats));
+
+    const newUserChats = yield all(
+      receiverKeys.map(function* (key, idx) {
+        const userDetails = yield call(rsf.database.read, `users/${key}`);
+        const chatObject = chats[key];
+        const chatMessagesArr = Object.values(chatObject);
+
+        const chatUser = {
+          uid: key,
+          token: userDetails.token,
+          name: userDetails.name,
+          msg: chatMessagesArr[0].message,
+          time: chatMessagesArr[0].time,
+        };
+
+        return chatUser;
+      })
+    );
+    yield put(putUserChats(newUserChats));
+  } else {
+    yield put(putUserChats([]));
+  }
+}
+
+function* startListener() {
+  // #1
+  const uuid = yield select(getUuidFromState);
+  const channel = new eventChannel((emiter) => {
+    const listener = database.ref(`chats/${uuid}`).on('value', (snapshot) => {
+      emiter({ data: snapshot.val() || {} });
+    });
+
+    // #2
+    return () => {
+      listener.off();
+    };
+  });
+
+  // #3
   while (true) {
-    const { value } = yield take(channel);
-
-    if (value !== null && value !== undefined) {
-      // const receiverKeys = Object.keys(value);
-      const allChatsObject = Object.values(value);
-      const receiverKeys = Object.keys(allChatsObject[0]);
-      // const allMessagesObj = Object.values(allChatsObject);
-      const allMessagesArr = Object.values(allChatsObject[0]);
-      yield put(putChats(allChatsObject[0]));
+    const { data } = yield take(channel);
+    // #4
+    console.log('listener start');
+    if (data !== null && data !== undefined) {
+      const receiverKeys = Object.keys(data);
+      yield put(putChats(data));
 
       const newUserChats = yield all(
         receiverKeys.map(function* (key, idx) {
           const userDetails = yield call(rsf.database.read, `users/${key}`);
-          const chatObject = allMessagesArr[idx];
+          const chatObject = data[key];
           const chatMessagesArr = Object.values(chatObject);
 
           const chatUser = {
@@ -286,8 +335,8 @@ function* syncChatsSaga() {
       yield put(putUserChats(newUserChats));
     } else {
       yield put(putUserChats([]));
-      return;
     }
+    // yield put(actionsCreators.updateList(data));
   }
 }
 
