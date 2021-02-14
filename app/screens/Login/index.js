@@ -147,13 +147,6 @@ export default function Login({ navigation }) {
                 Don't have an account? Register
               </Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{ justifyContent: 'center', alignItems: 'center' }}
-              onPress={() => navigate('ForgotPassword')}
-            >
-              <Text style={{ color: 'blue' }}>Forgot password</Text>
-            </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </ScrollView>
