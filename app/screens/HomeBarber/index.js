@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
+import { getChatUserDetails } from '../../providers/actions/User';
 
 import colours from '../../providers/constants/colours';
 
@@ -115,6 +116,16 @@ const RenderItem = ({ item }) => {
           <Picker.Item label="Confirmed" value="Confirmed" />
           <Picker.Item label="Pending" value="Pending" />
         </Picker>
+
+        <TouchableOpacity
+          onPress={() => dispatch(getChatUserDetails(item.client_uid))}
+        >
+          <Ionicons
+            name="ios-chatbubble"
+            size={18}
+            color={colours.themePrimary}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );
