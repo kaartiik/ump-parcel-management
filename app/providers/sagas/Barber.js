@@ -22,6 +22,7 @@ import {
   putLoadingStatus,
 } from '../actions/Barber';
 import { navigate, reset } from '../services/NavigatorService';
+import * as Notifications from 'expo-notifications';
 
 dayjs.extend(customParseFormat);
 
@@ -223,6 +224,16 @@ function* updateBookingStatusSaga({ payload }) {
       `users/${clientUid}/bookings/${bookingUid}/status`,
       status
     );
+
+    yield call(Notifications.scheduleNotificationAsync, {
+      content: {
+        title: 'Barber Shop Appointment',
+        body: `${dayjs(timestamp).format('DD-MM-YYYY hh:mm A')}`,
+      },
+      trigger: {
+        seconds: (timestamp - Date().getTime()) / 1000,
+      },
+    });
 
     const details = {
       title: 'Client Appointment',

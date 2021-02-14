@@ -22,6 +22,8 @@ import {
   putLoadingStatus,
 } from '../actions/Client';
 
+import * as Notifications from 'expo-notifications';
+
 dayjs.extend(customParseFormat);
 
 const getUuidFromState = (state) => state.userReducer.uuid;
@@ -99,6 +101,31 @@ function* confirmBookingSaga({ payload }) {
       allDay: true,
       timeZone: 'Asia/Kuala_Lumpur',
     };
+
+    // const localNotification = {
+    //   title: 'Barber Shop Appointment',
+    //   body: `${dayjs(timestamp).format('DD-MM-YYYY hh:mm A')}`,
+    // };
+
+    // const schedulingOptions = {
+    //   time: new Date().getTime() - 60000,
+    // };
+
+    // console.log(JSON.stringify(schedulingOptions));
+
+    // Notifications show only when app is not active.
+    // (ie. another app being used or device's screen is locked)
+
+    yield call(Notifications.scheduleNotificationAsync, {
+      content: {
+        title: 'Barber Shop Appointment',
+        body: `${dayjs(timestamp).format('DD-MM-YYYY hh:mm A')}`,
+      },
+      trigger: {
+        seconds: (timestamp - Date().getTime()) / 1000,
+      },
+    });
+
     yield call(Calendar.createEventAsync, calendarId, details);
 
     yield put(putLoadingStatus(false));
