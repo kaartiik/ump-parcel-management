@@ -225,13 +225,17 @@ function* updateBookingStatusSaga({ payload }) {
       status
     );
 
+    const thirtyMinutes = 30 * 60 * 1000;
+
+    const timeNow = new Date().getTime();
+
     yield call(Notifications.scheduleNotificationAsync, {
       content: {
         title: 'Barber Shop Appointment',
         body: `${dayjs(timestamp).format('DD-MM-YYYY hh:mm A')}`,
       },
       trigger: {
-        seconds: (timestamp - Date().getTime()) / 1000,
+        seconds: (timestamp - timeNow - thirtyMinutes) / 1000,
       },
     });
 

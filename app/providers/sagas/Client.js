@@ -102,19 +102,9 @@ function* confirmBookingSaga({ payload }) {
       timeZone: 'Asia/Kuala_Lumpur',
     };
 
-    // const localNotification = {
-    //   title: 'Barber Shop Appointment',
-    //   body: `${dayjs(timestamp).format('DD-MM-YYYY hh:mm A')}`,
-    // };
+    const thirtyMinutes = 30 * 60 * 1000;
 
-    // const schedulingOptions = {
-    //   time: new Date().getTime() - 60000,
-    // };
-
-    // console.log(JSON.stringify(schedulingOptions));
-
-    // Notifications show only when app is not active.
-    // (ie. another app being used or device's screen is locked)
+    const timeNow = new Date().getTime();
 
     yield call(Notifications.scheduleNotificationAsync, {
       content: {
@@ -122,7 +112,7 @@ function* confirmBookingSaga({ payload }) {
         body: `${dayjs(timestamp).format('DD-MM-YYYY hh:mm A')}`,
       },
       trigger: {
-        seconds: (timestamp - Date().getTime()) / 1000,
+        seconds: (timestamp - timeNow - thirtyMinutes) / 1000,
       },
     });
 
@@ -176,11 +166,29 @@ function* getMyBookingsSaga() {
   }
 }
 
+function* cancelBookingSaga({ payload }) {
+  const { bookingUid, clientUid, shopUid } = payload;
+
+  try {
+    yield call(
+      rsf.database.delete,
+      `users/${clientUid}/bookings/${bookingUid}`
+    );
+    yield call(
+      rsf.database.delete,
+      `barber_shops/${shopUid}/bookings/${bookingUid}`
+    );
+    yield call(getMyBookingsSaga);
+  } catch (error) {
+    alert(`Failed to delete booking. Please try again.`);
+  }
+}
+
 export default function* Client() {
-  // yield fork(getPostsSaga);
   yield all([
     takeLatest(actions.GET.BARBER_SHOPS, getBarberShopsSaga),
     takeLatest(actions.CONFIRM_BOOKING, confirmBookingSaga),
     takeLatest(actions.GET.BOOKINGS, getMyBookingsSaga),
+    takeLatest(actions.CANCEL.BOOKING, cancelBookingSaga),
   ]);
 }
