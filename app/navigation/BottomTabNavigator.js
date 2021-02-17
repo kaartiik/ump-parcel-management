@@ -9,13 +9,9 @@ import ChatStack from './ChatStack';
 import InfoStack from './InfoStack';
 import ShopsStack from './ShopsStack';
 
-// import { AuthContext } from './AuthProvider';
-
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
-  // const { isAuthorized, isAdmin } = useContext(AuthContext);
-
   const { isAdmin } = useSelector((state) => ({
     isAdmin: state.userReducer.isAdmin,
   }));
@@ -37,15 +33,6 @@ export default function BottomTabNavigator() {
           } else if (route.name === 'Chats') {
             iconName = 'ios-chatbubbles';
           }
-          // else if (route.name === 'Users') {
-          //   iconName = 'ios-people';
-          // } else if (route.name === 'Users') {
-          //   iconName = 'ios-people';
-          // } else if (route.name === 'Profile') {
-          //   iconName = 'ios-person';
-          // }
-
-          // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
@@ -53,7 +40,7 @@ export default function BottomTabNavigator() {
         activeTintColor: colours.themeSecondary,
         inactiveTintColor: colours.themePrimary,
         keyboardHidesTabBar: true,
-        // showLabel:  false
+        showLabel: false,
       }}
     >
       {isAdmin ? (
@@ -62,13 +49,12 @@ export default function BottomTabNavigator() {
           <Tab.Screen name="Info" component={InfoStack} />
         </>
       ) : (
-        <Tab.Screen name="Home" component={Home} />
+        <>
+          <Tab.Screen name="Home" component={Home} />
+          <Tab.Screen name="Shops" component={ShopsStack} />
+        </>
       )}
-      <Tab.Screen name="Shops" component={ShopsStack} />
       <Tab.Screen name="Chats" component={ChatStack} />
-      {/* <Tab.Screen name="Users" component={Users} />
-      <Tab.Screen name="Profile" component={Profile} />
-      <Tab.Screen name="Chats" component={HomeScreen} /> */}
     </Tab.Navigator>
   );
 }

@@ -18,7 +18,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colours from '../../providers/constants/colours';
 import timeList from '../../providers/constants/timeList';
 
-import { getBookings } from '../../providers/actions/Client';
+import { getBookings, cancelBooking } from '../../providers/actions/Client';
 import { getChatUserDetails } from '../../providers/actions/User';
 
 import dayjs from 'dayjs';
@@ -94,22 +94,28 @@ const RenderItem = ({ item }) => {
         <Text>{item.shop_name}</Text>
         <Text>{item.shop_contact}</Text>
         <Text>{item.shop_address}</Text>
-        <TouchableOpacity
-          onPress={
-            () => dispatch(getChatUserDetails(item.owner_uuid))
-            // navigation.navigate('ChatScreen', {
-            //   nameClicked: item.name,
-            //   uidClicked: item.uid,
-            //   tokenClicked: item.token,
-            // })
-          }
-        >
-          <Ionicons
-            name="ios-chatbubble"
-            size={18}
-            color={colours.themePrimary}
-          />
-        </TouchableOpacity>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <TouchableOpacity
+            onPress={() => dispatch(getChatUserDetails(item.owner_uuid))}
+          >
+            <Ionicons
+              name="ios-chatbubble"
+              size={18}
+              color={colours.themePrimary}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() =>
+              dispatch(
+                cancelBooking(item.booking_uid, item.client_uid, item.shop_uid)
+              )
+            }
+          >
+            <Text style={{ color: 'red' }}>Cancel Booking</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );

@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-import PushNotification from '../../providers/PushNotification';
 import { sendMessage } from '../../providers/actions/User';
 
 import dayjs from 'dayjs';
@@ -111,12 +110,6 @@ export default function ChatScreen({ route, navigation }) {
     if (textMessage.length > 0) {
       dispatch(sendMessage(uidClicked, tokenClicked, textMessage));
       setTextMessage('');
-
-      // new PushNotification().sendPushNotification(
-      //   tokenClicked,
-      //   CurrentUser.name,
-      //   textMessage
-      // );
     }
   };
 
