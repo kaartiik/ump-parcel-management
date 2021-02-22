@@ -122,15 +122,15 @@ function Shops({ navigation }) {
   const searchData = (searchText) => {
     let newData = [];
     if (searchText) {
-      newData = recipeFeed.filter((item) => {
+      newData = barberShops.filter((item) => {
         const uSearchText = searchText.toUpperCase();
-        const uTitle = item.rTitle.toUpperCase();
+        const uTitle = item.shop_name.toUpperCase();
 
         return uTitle.indexOf(uSearchText) > -1;
       });
       setData([...newData]);
     } else {
-      setData([...recipeFeed]);
+      setData([...barberShops]);
     }
   };
 

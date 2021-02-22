@@ -97,10 +97,7 @@ export default function ChatScreen({ route, navigation }) {
 
   useEffect(() => {
     const msgArr =
-      allChats !== null &&
-      uidClicked !== null &&
-      uidClicked !== undefined &&
-      uidClicked !== ''
+      allChats[uidClicked] !== null && allChats[uidClicked] !== undefined
         ? Object.values(allChats[uidClicked])
         : [];
     setExistingMsgs(msgArr);

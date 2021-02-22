@@ -361,7 +361,7 @@ function* getChatUserDetailsSaga({ payload }) {
       },
     });
   } catch (error) {
-    alert(`Failed to retrieve user.`);
+    alert(`Failed to retrieve user. ${error}`);
   }
 }
 
