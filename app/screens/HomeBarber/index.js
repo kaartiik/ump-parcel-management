@@ -16,6 +16,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { getChatUserDetails } from '../../providers/actions/User';
+import { cancelBooking } from '../../providers/actions/Client';
 
 import colours from '../../providers/constants/colours';
 
@@ -88,7 +89,7 @@ const RenderItem = ({ item }) => {
           <Text
             style={{
               fontWeight: 'bold',
-              color: item.status === 'Pending' ? 'red' : 'green',
+              color: item.status === 'Confirmed' ? 'green' : 'red',
             }}
           >
             {item.status}
@@ -117,15 +118,27 @@ const RenderItem = ({ item }) => {
           <Picker.Item label="Pending" value="Pending" />
         </Picker>
 
-        <TouchableOpacity
-          onPress={() => dispatch(getChatUserDetails(item.client_uid))}
-        >
-          <Ionicons
-            name="ios-chatbubble"
-            size={18}
-            color={colours.themePrimary}
-          />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <TouchableOpacity
+            onPress={() => dispatch(getChatUserDetails(item.client_uid))}
+          >
+            <Ionicons
+              name="ios-chatbubble"
+              size={18}
+              color={colours.themePrimary}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() =>
+              dispatch(
+                cancelBooking(item.booking_uid, item.client_uid, item.shop_uid)
+              )
+            }
+          >
+            <Text style={{ color: 'red' }}>Cancel Booking</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );

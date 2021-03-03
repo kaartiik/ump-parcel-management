@@ -15,6 +15,9 @@ export const actions = {
     BARBER_SHOP: 'EDIT_BARBER_SHOP',
   },
   UPDATE_BOOKING_STATUS: 'UPDATE_BOOKING_STATUS',
+  CANCEL: {
+    BOOKING: 'CANCEL_BOOKING',
+  },
 };
 
 export const updateBookingStatus = (
@@ -88,6 +91,11 @@ export const getBarberBookings = () => ({
 export const putBarberBookings = (bookings) => ({
   type: actions.PUT.BARBER_BOOKINGS,
   payload: bookings,
+});
+
+export const cancelBooking = (bookingUid, clientUid, shopUid) => ({
+  type: actions.CANCEL.BOOKING,
+  payload: { bookingUid, clientUid, shopUid },
 });
 
 export const putLoadingStatus = (isLoading) => ({

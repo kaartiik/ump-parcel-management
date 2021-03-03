@@ -47,12 +47,10 @@ function* getBarberShopInfoSaga() {
       return;
     }
 
-    console.log(uuid);
     const data = yield call(rsf.database.read, `users/${uuid}/barber_shops`);
 
     const exists = data !== null && data !== undefined;
     if (exists) {
-      console.log(data);
       yield put(putBarberShop(data));
       yield put(putLoadingStatus(false));
       reset('HomeBarber');
@@ -124,16 +122,37 @@ function* editBarberShopSaga({ payload }) {
     } = payload;
     const uuid = yield select(getUuidFromState);
 
-    const barberShopObj = {
-      shop_name: shopName,
-      shop_address: shopAddress,
-      shop_contact: shopContact,
-      services: services,
-      shop_open_time: shopOpenTime,
-      shop_close_time: shopCloseTime,
-      shop_uid: shopUid,
-      owner_uuid: uuid,
-    };
+    const bookingsObj = yield call(
+      rsf.database.read,
+      `barber_shops/${shopUid}/bookings`
+    );
+
+    let barberShopObj = {};
+
+    if (bookingsObj !== null && bookingsObj !== undefined) {
+      barberShopObj = {
+        bookings: bookingsObj,
+        shop_name: shopName,
+        shop_address: shopAddress,
+        shop_contact: shopContact,
+        services: services,
+        shop_open_time: shopOpenTime,
+        shop_close_time: shopCloseTime,
+        shop_uid: shopUid,
+        owner_uuid: uuid,
+      };
+    } else {
+      barberShopObj = {
+        shop_name: shopName,
+        shop_address: shopAddress,
+        shop_contact: shopContact,
+        services: services,
+        shop_open_time: shopOpenTime,
+        shop_close_time: shopCloseTime,
+        shop_uid: shopUid,
+        owner_uuid: uuid,
+      };
+    }
 
     yield call(rsf.database.update, `barber_shops/${shopUid}`, barberShopObj);
 
@@ -256,6 +275,24 @@ function* updateBookingStatusSaga({ payload }) {
   }
 }
 
+function* cancelBookingSaga({ payload }) {
+  const { bookingUid, clientUid, shopUid } = payload;
+
+  try {
+    yield call(
+      rsf.database.delete,
+      `users/${clientUid}/bookings/${bookingUid}`
+    );
+    yield call(
+      rsf.database.delete,
+      `barber_shops/${shopUid}/bookings/${bookingUid}`
+    );
+    yield call(getBarberBookingsSaga);
+  } catch (error) {
+    alert(`Failed to delete booking. Please try again.`);
+  }
+}
+
 export default function* Barber() {
   yield all([
     takeLatest(actions.GET.BARBER_SHOP, getBarberShopInfoSaga),
@@ -263,5 +300,6 @@ export default function* Barber() {
     takeLatest(actions.EDIT.BARBER_SHOP, editBarberShopSaga),
     takeLatest(actions.GET.BARBER_BOOKINGS, getBarberBookingsSaga),
     takeLatest(actions.UPDATE_BOOKING_STATUS, updateBookingStatusSaga),
+    takeLatest(actions.CANCEL.BOOKING, cancelBookingSaga),
   ]);
 }

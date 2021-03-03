@@ -84,7 +84,7 @@ const RenderItem = ({ item }) => {
           <Text
             style={{
               fontWeight: 'bold',
-              color: item.status === 'Pending' ? 'red' : 'green',
+              color: item.status === 'Confirmed' ? 'green' : 'red',
             }}
           >
             {item.status}
