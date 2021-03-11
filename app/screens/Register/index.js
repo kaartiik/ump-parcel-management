@@ -110,7 +110,7 @@ export default function Register({ navigation }) {
                     >
                       <Picker.Item label="Select" value="" />
                       <Picker.Item label="Barber" value="barber" />
-                      <Picker.Item label="User" value="user" />
+                      <Picker.Item label="Client" value="user" />
                     </Picker>
                     <Text style={{ color: 'red' }}>
                       {(touched.role || submitCount > 0) && errors.role}
