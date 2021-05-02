@@ -13,21 +13,13 @@ export const actions = {
   },
   ADD: {
     PRODUCT: 'ADD_PRODUCT',
-    BARBER_SHOP: 'ADD_BARBER_SHOP',
   },
   UPDATE: {
     PRODUCT: 'UPDATE_PRODUCT',
   },
-  EDIT: {
-    BARBER_SHOP: 'EDIT_BARBER_SHOP',
-  },
-  UPDATE_BOOKING_STATUS: 'UPDATE_BOOKING_STATUS',
   DELETE: {
     PRODUCT: 'DELETE_PRODUCT',
     PER_IMAGE: 'DELETE_PER_IMAGE',
-  },
-  CANCEL: {
-    BOOKING: 'CANCEL_BOOKING',
   },
 };
 
@@ -102,17 +94,6 @@ export const putCurrentProduct = (product) => ({
   payload: product,
 });
 
-export const updateBookingStatus = (
-  shopUid,
-  clientUid,
-  bookingUid,
-  timestamp,
-  status
-) => ({
-  type: actions.UPDATE_BOOKING_STATUS,
-  payload: { shopUid, clientUid, bookingUid, timestamp, status },
-});
-
 export const getAllProducts = () => ({
   type: actions.GET.ALL_PRODUCTS,
 });
@@ -129,64 +110,6 @@ export const putAllProducts = (products) => ({
 export const putMyProducts = (products) => ({
   type: actions.PUT.MY_PRODUCTS,
   payload: products,
-});
-
-export const addBarberShop = (
-  shopName,
-  shopAddress,
-  shopContact,
-  services,
-  shopOpenTime,
-  shopCloseTime,
-  onSuccess
-) => ({
-  type: actions.ADD.BARBER_SHOP,
-  payload: {
-    shopName,
-    shopAddress,
-    shopContact,
-    services,
-    shopOpenTime,
-    shopCloseTime,
-    onSuccess,
-  },
-});
-
-export const editBarberShop = (
-  shopUid,
-  shopName,
-  shopAddress,
-  shopContact,
-  services,
-  shopOpenTime,
-  shopCloseTime,
-  onSuccess
-) => ({
-  type: actions.EDIT.BARBER_SHOP,
-  payload: {
-    shopUid,
-    shopName,
-    shopAddress,
-    shopContact,
-    services,
-    shopOpenTime,
-    shopCloseTime,
-    onSuccess,
-  },
-});
-
-export const getBarberBookings = () => ({
-  type: actions.GET.BARBER_BOOKINGS,
-});
-
-export const putBarberBookings = (bookings) => ({
-  type: actions.PUT.BARBER_BOOKINGS,
-  payload: bookings,
-});
-
-export const cancelBooking = (bookingUid, clientUid, shopUid) => ({
-  type: actions.CANCEL.BOOKING,
-  payload: { bookingUid, clientUid, shopUid },
 });
 
 export const putLoadingStatus = (isLoading) => ({

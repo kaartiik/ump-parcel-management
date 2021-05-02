@@ -11,7 +11,6 @@ import {
   all,
   fork,
 } from 'redux-saga/effects';
-import * as Calendar from 'expo-calendar';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import rsf, { database } from '../config';
@@ -24,7 +23,6 @@ import {
   putLoadingStatus,
 } from '../actions/Product';
 import { navigate, reset } from '../services/NavigatorService';
-import * as Notifications from 'expo-notifications';
 
 dayjs.extend(customParseFormat);
 

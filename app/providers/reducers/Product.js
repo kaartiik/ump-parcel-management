@@ -1,44 +1,46 @@
-import { actions } from '../actions/User';
+import { actions } from '../actions/Product';
 
 const initialState = {
-  name: '',
-  email: '',
-  mobile: '',
-  uuid: '',
-  role: '',
-  isAdmin: false,
-  token: '',
-  userChats: [],
-  allChats: null,
+  allProducts: [],
+  myProducts: [],
+  productName: '',
+  productUid: '',
+  category: '',
+  sellType: '',
+  description: '',
+  price: '',
+  meetUpLocation: '',
+  owner_uuid: '',
+  productImages: [],
+  sellerInfo: null,
+  currentProduct: null,
   isLoading: false,
 };
 
-export default function userReducer(state = initialState, action = {}) {
+export default function productReducer(state = initialState, action = {}) {
   switch (action.type) {
-    case actions.PUT.USER_PROFILE: {
-      const { uuid, name, email, mobile, role, token } = action.payload;
+    case actions.PUT.ALL_PRODUCTS:
       return {
         ...state,
-        uuid,
-        name,
-        email,
-        mobile,
-        role,
-        isAdmin: role === 'barber' ? true : false,
-        token,
-      };
-    }
-
-    case actions.PUT.USER_CHATS:
-      return {
-        ...state,
-        userChats: action.payload,
+        allProducts: action.payload,
       };
 
-    case actions.PUT.CHATS:
+    case actions.PUT.MY_PRODUCTS:
       return {
         ...state,
-        allChats: action.payload,
+        myProducts: action.payload,
+      };
+
+    case actions.PUT.CURRENT_PRODUCT:
+      return {
+        ...state,
+        currentProduct: action.payload,
+      };
+
+    case actions.PUT.PRODUCT_USER_INFO:
+      return {
+        ...state,
+        sellerInfo: action.payload,
       };
 
     case actions.PUT.LOADING_STATUS:

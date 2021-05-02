@@ -141,7 +141,7 @@ function Home({ route, navigation }) {
           )}
           ListEmptyComponent={
             <View style={styles.flatlistEmptyContainer}>
-              <Text>No bookings</Text>
+              <Text>No products</Text>
             </View>
           }
         />
