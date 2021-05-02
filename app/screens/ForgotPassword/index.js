@@ -16,7 +16,7 @@ import {
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useDispatch } from 'react-redux';
-import { login, loginAnon } from '../../providers/actions/User';
+import { forgotPassword } from '../../providers/actions/User';
 import colours from '../../providers/constants/colours';
 
 // import { AuthContext } from '../navigation/AuthProvider';\
@@ -53,17 +53,13 @@ const validationSchema = yup.object().shape({
     .string()
     .required('Email is a required field')
     .email("Welp, that's not an email"),
-  password: yup
-    .string()
-    .required('Password is a required field')
-    .min(6, "That can't be very secure"),
 });
 
-export default function Login({ navigation }) {
+export default function ForgotPassword({ navigation }) {
   const dispatch = useDispatch();
 
-  const handleLogin = ({ email, password }) => {
-    dispatch(login({ email, password }));
+  const handleForgotPassword = ({ email }) => {
+    dispatch(forgotPassword(email));
   };
 
   LayoutAnimation.easeInEaseOut();
@@ -75,14 +71,16 @@ export default function Login({ navigation }) {
     >
       <StatusBar barStyle="default" />
 
-      <Text style={styles.greeting}>{'Hello again.\nWelcome back.'}</Text>
+      <Text style={styles.greeting}>
+        {'Enter your email to reset your password.'}
+      </Text>
 
       <ScrollView>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.form}>
             <Formik
-              initialValues={{ email: '', password: '' }}
-              onSubmit={(values) => handleLogin(values)}
+              initialValues={{ email: '' }}
+              onSubmit={(values) => handleForgotPassword(values)}
               validationSchema={validationSchema}
             >
               {({
@@ -108,25 +106,12 @@ export default function Login({ navigation }) {
                       {(touched.email || submitCount > 0) && errors.email}
                     </Text>
 
-                    <View style={styles.textboxContainer}>
-                      <TextInput
-                        secureTextEntry
-                        placeholder="Enter password..."
-                        value={values.password}
-                        onChangeText={handleChange('password')}
-                        onBlur={handleBlur('password')}
-                      />
-                    </View>
-                    <Text style={{ color: 'red' }}>
-                      {(touched.password || submitCount > 0) && errors.password}
-                    </Text>
-
                     <TouchableOpacity
                       style={styles.bigBtn}
                       onPress={handleSubmit}
                       title="SUBMIT"
                     >
-                      <Text style={{ color: 'white' }}>Sign In</Text>
+                      <Text style={{ color: 'white' }}>Send Reset Email</Text>
                     </TouchableOpacity>
                   </View>
                 );
@@ -135,11 +120,9 @@ export default function Login({ navigation }) {
 
             <TouchableOpacity
               style={{ justifyContent: 'center', alignItems: 'center' }}
-              onPress={() => navigation.navigate('Register')}
+              onPress={() => navigation.goBack()}
             >
-              <Text style={{ color: 'blue' }}>
-                Don't have an account? Register
-              </Text>
+              <Text style={{ color: 'blue' }}>Sign In</Text>
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>

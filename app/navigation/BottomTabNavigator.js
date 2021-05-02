@@ -1,36 +1,31 @@
 import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
 import colours from '../providers/constants/colours';
 import Home from '../screens/Home';
-import HomeBarber from '../screens/HomeBarber';
+import ProfileStack from './ProfileStack';
 import ChatStack from './ChatStack';
-import InfoStack from './InfoStack';
-import ShopsStack from './ShopsStack';
+import AddItem from '../screens/AddItem';
+import MyItems from '../screens/MyItems';
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
-  const { isAdmin } = useSelector((state) => ({
-    isAdmin: state.userReducer.isAdmin,
-  }));
-
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') {
+          if (route.name === 'HomeTab') {
             iconName = 'ios-home';
-          } else if (route.name === 'HomeBarber') {
-            iconName = 'ios-home';
-          } else if (route.name === 'Info') {
-            iconName = 'ios-information-circle';
-          } else if (route.name === 'Shops') {
-            iconName = 'ios-add-circle';
-          } else if (route.name === 'Chats') {
+          } else if (route.name === 'AddItemTab') {
+            iconName = 'ios-add-outline';
+          } else if (route.name === 'MyItemsTab') {
+            iconName = 'ios-list-outline';
+          } else if (route.name === 'ProfileTab') {
+            iconName = 'ios-person';
+          } else if (route.name === 'ChatsTab') {
             iconName = 'ios-chatbubbles';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -43,18 +38,15 @@ export default function BottomTabNavigator() {
         showLabel: false,
       }}
     >
-      {isAdmin ? (
-        <>
-          <Tab.Screen name="HomeBarber" component={HomeBarber} />
-          <Tab.Screen name="Info" component={InfoStack} />
-        </>
-      ) : (
-        <>
-          <Tab.Screen name="Home" component={Home} />
-          <Tab.Screen name="Shops" component={ShopsStack} />
-        </>
-      )}
-      <Tab.Screen name="Chats" component={ChatStack} />
+      <Tab.Screen name="HomeTab" component={Home} />
+      <Tab.Screen
+        name="AddItemTab"
+        component={AddItem}
+        initialParams={{ product: null }}
+      />
+      <Tab.Screen name="MyItemsTab" component={MyItems} />
+      <Tab.Screen name="ProfileTab" component={ProfileStack} />
+      <Tab.Screen name="ChatsTab" component={ChatStack} />
     </Tab.Navigator>
   );
 }

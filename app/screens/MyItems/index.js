@@ -14,11 +14,12 @@ import { Ionicons } from '@expo/vector-icons';
 
 import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
-
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colours from '../../providers/constants/colours';
-import timeList from '../../providers/constants/timeList';
-
-import { getBarberShops } from '../../providers/actions/Client';
+import {
+  getMyProducts,
+  getProductUserInfo,
+} from '../../providers/actions/Product';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -36,10 +37,9 @@ const styles = StyleSheet.create({
     marginVertical: 3,
     width: 220,
   },
-  recipeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  bookingItem: {
     backgroundColor: 'white',
+    padding: 10,
     borderRadius: 6,
   },
   previewImg: {
@@ -65,55 +65,66 @@ const styles = StyleSheet.create({
   },
 });
 
-const RenderItem = ({ item, day, shopItem, navigation }) => {
-  const fullDate = `${day.dateString} ${item}`;
+const RenderItem = ({ item }) => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
   return (
-    <View style={{ marginTop: 10, padding: 10 }}>
-      <TouchableOpacity
-        style={styles.recipeItem}
-        onPress={() =>
-          navigation.navigate('ConfirmBooking', {
-            shopItem,
-            timestamp: dayjs(
-              `${day.dateString} ${item}`,
-              'YYYY-MM-DD hh:mm A'
-            ).valueOf(),
-          })
-        }
+    <TouchableOpacity
+      style={{ marginTop: 10, padding: 10 }}
+      onPress={() => dispatch(getProductUserInfo(item))}
+    >
+      <Image
+        source={{ uri: Object.values(item.productImages)[0].image_url }}
+        style={{ height: 150, width: 150, borderRadius: 4 }}
+      />
+      <View
+        style={{
+          backgroundColor: 'rgba(52, 52, 52, 0.8)',
+          height: 50,
+          width: 150,
+          position: 'absolute',
+          left: 10,
+          bottom: 0,
+          borderBottomLeftRadius: 4,
+          borderBottomRightRadius: 4,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          paddingHorizontal: 5,
+        }}
       >
-        <View style={{ marginLeft: 10 }}>
-          <Text
-            style={{
-              fontSize: 15,
-              color: colours.lightBlue,
-              marginVertical: 3,
-            }}
-          >
-            {item}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    </View>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.price}</Text>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>
+          {item.sellType}
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 };
 
 RenderItem.propTypes = {
-  item: PropTypes.string.isRequired,
+  item: PropTypes.object.isRequired,
 };
 
-function TimeSlots({ route, navigation }) {
-  const { shopItem, day } = route.params;
-  const { isAdmin, isLoading } = useSelector((state) => ({
-    isAdmin: state.userReducer.isAdmin,
-    isLoading: state.clientReducer.isLoading,
+function MyItems({ route, navigation }) {
+  const dispatch = useDispatch();
+
+  const { myProducts, isLoading } = useSelector((state) => ({
+    myProducts: state.productReducer.myProducts,
+    isLoading: state.productReducer.isLoading,
   }));
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getMyProducts());
+    }, [])
+  );
 
   return (
     <View style={{ flex: 1 }}>
       <AppBar />
 
       <View style={{ padding: 10 }}>
-        <Text style={{ fontSize: 18 }}>Barber Shops</Text>
+        <Text style={{ fontSize: 18 }}>My Products</Text>
 
         <View style={styles.divider} />
       </View>
@@ -123,19 +134,14 @@ function TimeSlots({ route, navigation }) {
       ) : (
         <FlatList
           keyExtractor={(item, index) => index.toString()}
-          data={timeList}
+          data={myProducts}
+          numColumns={2}
           renderItem={({ item, index }) => (
-            <RenderItem
-              key={index}
-              item={item}
-              day={day}
-              shopItem={shopItem}
-              navigation={navigation}
-            />
+            <RenderItem key={index} item={item} />
           )}
           ListEmptyComponent={
             <View style={styles.flatlistEmptyContainer}>
-              <Text>No time slots</Text>
+              <Text>No products</Text>
             </View>
           }
         />
@@ -144,4 +150,4 @@ function TimeSlots({ route, navigation }) {
   );
 }
 
-export default TimeSlots;
+export default MyItems;

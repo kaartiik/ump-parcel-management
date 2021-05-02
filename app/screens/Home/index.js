@@ -16,10 +16,10 @@ import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colours from '../../providers/constants/colours';
-import timeList from '../../providers/constants/timeList';
-
-import { getBookings, cancelBooking } from '../../providers/actions/Client';
-import { getChatUserDetails } from '../../providers/actions/User';
+import {
+  getAllProducts,
+  getProductUserInfo,
+} from '../../providers/actions/Product';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -69,55 +69,35 @@ const RenderItem = ({ item }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   return (
-    <View style={{ marginTop: 10, padding: 10 }}>
-      <View style={styles.bookingItem}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 8,
-          }}
-        >
-          <Text style={{ fontWeight: 'bold' }}>
-            {dayjs(item.booking_time).format('DD-MM-YYYY hh:mm A')}
-          </Text>
-          <Text
-            style={{
-              fontWeight: 'bold',
-              color: item.status === 'Confirmed' ? 'green' : 'red',
-            }}
-          >
-            {item.status}
-          </Text>
-        </View>
-        <Text style={{ fontWeight: 'bold' }}>{item.service}</Text>
-        <Text>{item.shop_name}</Text>
-        <Text>{item.shop_contact}</Text>
-        <Text>{item.shop_address}</Text>
-
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <TouchableOpacity
-            onPress={() => dispatch(getChatUserDetails(item.owner_uuid))}
-          >
-            <Ionicons
-              name="ios-chatbubble"
-              size={18}
-              color={colours.themePrimary}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() =>
-              dispatch(
-                cancelBooking(item.booking_uid, item.client_uid, item.shop_uid)
-              )
-            }
-          >
-            <Text style={{ color: 'red' }}>Cancel Booking</Text>
-          </TouchableOpacity>
-        </View>
+    <TouchableOpacity
+      style={{ marginTop: 10, padding: 10 }}
+      onPress={() => dispatch(getProductUserInfo(item))}
+    >
+      <Image
+        source={{ uri: Object.values(item.productImages)[0].image_url }}
+        style={{ height: 150, width: 150, borderRadius: 4 }}
+      />
+      <View
+        style={{
+          backgroundColor: 'rgba(52, 52, 52, 0.8)',
+          height: 50,
+          width: 150,
+          position: 'absolute',
+          left: 10,
+          bottom: 0,
+          borderBottomLeftRadius: 4,
+          borderBottomRightRadius: 4,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          paddingHorizontal: 5,
+        }}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.price}</Text>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>
+          {item.sellType}
+        </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -128,15 +108,14 @@ RenderItem.propTypes = {
 function Home({ route, navigation }) {
   const dispatch = useDispatch();
 
-  const { isAdmin, myBookings, isLoading } = useSelector((state) => ({
-    isAdmin: state.userReducer.isAdmin,
-    myBookings: state.clientReducer.myBookings,
-    isLoading: state.clientReducer.isLoading,
+  const { allProducts, isLoading } = useSelector((state) => ({
+    allProducts: state.productReducer.allProducts,
+    isLoading: state.productReducer.isLoading,
   }));
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(getBookings());
+      dispatch(getAllProducts());
     }, [])
   );
 
@@ -145,7 +124,7 @@ function Home({ route, navigation }) {
       <AppBar />
 
       <View style={{ padding: 10 }}>
-        <Text style={{ fontSize: 18 }}>My Bookings</Text>
+        <Text style={{ fontSize: 18 }}>Products</Text>
 
         <View style={styles.divider} />
       </View>
@@ -155,7 +134,8 @@ function Home({ route, navigation }) {
       ) : (
         <FlatList
           keyExtractor={(item, index) => index.toString()}
-          data={myBookings}
+          data={allProducts}
+          numColumns={2}
           renderItem={({ item, index }) => (
             <RenderItem key={index} item={item} />
           )}

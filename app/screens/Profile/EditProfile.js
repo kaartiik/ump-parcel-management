@@ -1,46 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import {
   View,
-  Text,
-  TouchableOpacity,
-  StatusBar,
-  LayoutAnimation,
-  KeyboardAvoidingView,
-  Keyboard,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Platform,
-  StyleSheet,
-  TextInput,
   Image,
+  Text,
+  TouchableWithoutFeedback,
+  Keyboard,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
 } from 'react-native';
-import * as Location from 'expo-location';
+import { Picker } from 'native-base';
 import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { useDispatch } from 'react-redux';
-import { register } from '../../providers/actions/User';
+import { useDispatch, useSelector } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import AppBar from '../../components/AppBar';
+import LoadingIndicator from '../../components/LoadingIndicator';
+import { updateUserProfile } from '../../providers/actions/User';
+
 import colours from '../../providers/constants/colours';
 
-// import { AuthContext } from '../navigation/AuthProvider';\
-
-const IMAGE_DIMENSION = 50;
+import {
+  getBarberBookings,
+  updateBookingStatus,
+} from '../../providers/actions/Product';
 
 const styles = StyleSheet.create({
-  greeting: {
-    marginTop: 32,
-    fontSize: 18,
-    fontWeight: '400',
-    textAlign: 'center',
+  divider: {
+    marginHorizontal: 16,
+    height: 0.5,
+    width: '100%',
+    backgroundColor: colours.borderGrey,
+    alignSelf: 'center',
   },
   bigBtn: {
-    marginHorizontal: 30,
+    marginTop: 30,
+    marginBottom: 10,
+    marginHorizontal: 20,
     backgroundColor: colours.themePrimary,
     borderRadius: 4,
     height: 52,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  recipeDescription: {
+    marginVertical: 3,
+    width: 220,
+  },
+  bookingItem: {
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 6,
   },
   textboxContainer: {
     backgroundColor: colours.themePrimaryLight,
@@ -48,28 +64,59 @@ const styles = StyleSheet.create({
     padding: 5,
     marginVertical: 5,
   },
-  form: {
-    marginBottom: 48,
-    marginHorizontal: 30,
+  previewImg: {
+    height: 100,
+    width: 100,
+    resizeMode: 'cover',
+    alignSelf: 'flex-start',
+    borderRadius: 6,
+  },
+  flatlistEmptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  searchBox: {
+    marginTop: 10,
+    marginHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colours.themePrimaryLight,
+    borderRadius: 3,
+    padding: 5,
   },
 });
+
+const IMAGE_DIMENSION = 100;
 
 const validationSchema = yup.object().shape({
   username: yup.string().required('Required'),
   mobile: yup.string().required('Required'),
-  email: yup.string().required('Required').email('Please enter a valid email'),
-  password: yup.string().required('Required').min(6, 'Minimum 6 characters'),
   location: yup.string().required('Required'),
 });
 
-export default function Register({ navigation }) {
-  LayoutAnimation.easeInEaseOut();
+function EditProfile({ route, navigation }) {
   const dispatch = useDispatch();
   const [userImage, setUserImage] = useState(null);
 
-  const handleLogin = ({ location, username, mobile, email, password }) => {
-    dispatch(register(location, username, mobile, email, password, userImage));
-  };
+  const {
+    username,
+    email,
+    mobile,
+    profilePicture,
+    location,
+    isLoading,
+  } = useSelector((state) => ({
+    username: state.userReducer.username,
+    mobile: state.userReducer.mobile,
+    location: state.userReducer.location,
+    profilePicture: state.userReducer.profilePicture,
+    isLoading: state.userReducer.isLoading,
+  }));
+
+  useEffect(() => {
+    setUserImage(profilePicture);
+  }, [profilePicture]);
 
   const findNewImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -107,29 +154,38 @@ export default function Register({ navigation }) {
     );
   };
 
+  const handleSave = (values) => {
+    const { username, mobile, location } = values;
+
+    dispatch(
+      updateUserProfile(username, mobile, location, userImage, () =>
+        navigation.goBack()
+      )
+    );
+  };
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-    >
-      <StatusBar barStyle="default" />
+    <View style={{ flex: 1 }}>
+      <AppBar />
 
-      <Text style={styles.greeting}>
-        {'Hello there.\nRegister an account.'}
-      </Text>
+      <View style={{ padding: 10 }}>
+        <Text style={{ fontSize: 18 }}>Edit Profile</Text>
 
-      <ScrollView>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.form}>
+        <View style={styles.divider} />
+      </View>
+
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <ScrollView>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <Formik
               initialValues={{
-                location: '',
-                username: '',
-                mobile: '',
-                email: '',
-                password: '',
+                location: location,
+                username: username,
+                mobile: mobile,
               }}
-              onSubmit={(values) => handleLogin(values)}
+              onSubmit={(values) => handleSave(values)}
               validationSchema={validationSchema}
             >
               {({
@@ -144,8 +200,8 @@ export default function Register({ navigation }) {
               }) => {
                 return (
                   <View style={{ padding: 10 }}>
-                    <View style={{ alignItems: 'center' }}>
-                      {userImage === null ? (
+                    <View style={{ alignItems: 'center', marginBottom: 20 }}>
+                      {userImage === null || userImage === undefined ? (
                         <Image
                           source={require('../../../assets/default_avatar.jpg')}
                           style={{
@@ -169,31 +225,6 @@ export default function Register({ navigation }) {
                         <Text>Edit Image</Text>
                       </TouchableOpacity>
                     </View>
-
-                    <View style={styles.textboxContainer}>
-                      <TextInput
-                        placeholder="Enter email..."
-                        value={values.email}
-                        onChangeText={handleChange('email')}
-                        onBlur={handleBlur('email')}
-                      />
-                    </View>
-                    <Text style={{ color: 'red' }}>
-                      {(touched.email || submitCount > 0) && errors.email}
-                    </Text>
-
-                    <View style={styles.textboxContainer}>
-                      <TextInput
-                        secureTextEntry
-                        placeholder="Enter password..."
-                        value={values.password}
-                        onChangeText={handleChange('password')}
-                        onBlur={handleBlur('password')}
-                      />
-                    </View>
-                    <Text style={{ color: 'red' }}>
-                      {(touched.password || submitCount > 0) && errors.password}
-                    </Text>
 
                     <View style={styles.textboxContainer}>
                       <TextInput
@@ -243,26 +274,18 @@ export default function Register({ navigation }) {
                     <TouchableOpacity
                       style={styles.bigBtn}
                       onPress={handleSubmit}
-                      title="SUBMIT"
                     >
-                      <Text style={{ color: 'white' }}>Register</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={{ justifyContent: 'center', alignItems: 'center' }}
-                      onPress={() => navigation.goBack()}
-                    >
-                      <Text style={{ color: 'blue' }}>
-                        Aready have an account? Sign in here.
-                      </Text>
+                      <Text style={{ color: 'white' }}>Save</Text>
                     </TouchableOpacity>
                   </View>
                 );
               }}
             </Formik>
-          </View>
-        </TouchableWithoutFeedback>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
+        </ScrollView>
+      )}
+    </View>
   );
 }
+
+export default EditProfile;

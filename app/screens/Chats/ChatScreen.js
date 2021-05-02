@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-import { sendMessage } from '../../providers/actions/User';
+import { sendMessage, sendProduct } from '../../providers/actions/User';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -84,7 +84,12 @@ const styles = StyleSheet.create({
 });
 
 export default function ChatScreen({ route, navigation }) {
-  const { nameClicked, uidClicked, tokenClicked } = route.params;
+  const {
+    nameClicked,
+    uidClicked,
+    tokenClicked,
+    productClicked,
+  } = route.params;
   const dispatch = useDispatch();
   const [textMessage, setTextMessage] = useState('');
   const [existingMsgs, setExistingMsgs] = useState([]);
@@ -94,6 +99,12 @@ export default function ChatScreen({ route, navigation }) {
     uuid: state.userReducer.uuid,
     isLoading: state.userReducer.isLoading,
   }));
+
+  useEffect(() => {
+    if (productClicked !== null && productClicked !== undefined) {
+      dispatch(sendProduct(uidClicked, tokenClicked, productClicked));
+    }
+  }, [productClicked]);
 
   useEffect(() => {
     const msgArr =
@@ -112,22 +123,69 @@ export default function ChatScreen({ route, navigation }) {
 
   const renderRow = ({ item }) => {
     return (
-      <View
-        style={{
-          width: '60%',
-          alignSelf: item.from === uuid ? 'flex-end' : 'flex-start',
-          backgroundColor: item.from === uuid ? '#00897b' : '#7cb342',
-          borderRadius: 5,
-          marginBottom: 10,
-          padding: 5,
-        }}
-      >
-        <Text style={styles.msgText}>{item.message}</Text>
+      <>
+        {item.hasOwnProperty('productDetails') ? (
+          <View
+            style={{
+              width: '60%',
+              alignSelf: item.from === uuid ? 'flex-end' : 'flex-start',
+              backgroundColor: item.from === uuid ? '#00897b' : '#7cb342',
+              borderRadius: 5,
+              marginBottom: 10,
+              padding: 5,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image
+                source={{ uri: item.productDetails.productPicture }}
+                style={{
+                  height: 50,
+                  width: 50,
+                  borderRadius: 4,
+                  resizeMode: 'contain',
+                  marginRight: 3,
+                }}
+              />
 
-        <Text style={styles.msgTime}>
-          {dayjs(item.time).format('hh:mm A DD-MM-YYYY')}
-        </Text>
-      </View>
+              <View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Text style={{ marginRight: 3 }}>
+                    {item.productDetails.productName}
+                  </Text>
+                  <Text>{item.productDetails.productSellType}</Text>
+                </View>
+                <Text>RM {item.productDetails.productPrice}</Text>
+              </View>
+            </View>
+
+            <Text style={styles.msgTime}>
+              {dayjs(item.time).format('hh:mm A DD-MM-YYYY')}
+            </Text>
+          </View>
+        ) : (
+          <View
+            style={{
+              width: '60%',
+              alignSelf: item.from === uuid ? 'flex-end' : 'flex-start',
+              backgroundColor: item.from === uuid ? '#00897b' : '#7cb342',
+              borderRadius: 5,
+              marginBottom: 10,
+              padding: 5,
+            }}
+          >
+            <Text style={styles.msgText}>{item.message}</Text>
+
+            <Text style={styles.msgTime}>
+              {dayjs(item.time).format('hh:mm A DD-MM-YYYY')}
+            </Text>
+          </View>
+        )}
+      </>
     );
   };
 
