@@ -200,11 +200,16 @@ export default function ViewProduct({ route, navigation }) {
                       alignItems: 'center',
                       width: '80%',
                       justifyContent: 'space-between',
+                      paddingRight: 5,
                     }}
                   >
                     <View>
-                      <Text>{sellerInfo.sellerName}</Text>
-                      <Text>{sellerInfo.sellerLocation}</Text>
+                      <Text style={{ flexShrink: 1 }}>
+                        {sellerInfo.sellerName}
+                      </Text>
+                      <Text style={{ flexShrink: 1 }}>
+                        {sellerInfo.sellerLocation}
+                      </Text>
                     </View>
 
                     <TouchableOpacity

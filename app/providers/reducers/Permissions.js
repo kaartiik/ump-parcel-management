@@ -1,23 +1,16 @@
 import { actions } from '../actions/Permissions';
 
 const initialState = {
-  calendarId: -1,
-  calendarPermission: false,
+  locationPermission: false,
   notificationPermission: false,
 };
 
 export default function permissionsReducer(state = initialState, action = {}) {
   switch (action.type) {
-    case actions.PUT.CALENDAR_ID:
+    case actions.PUT.LOCATION_PERMISSION:
       return {
         ...state,
-        calendarId: action.payload,
-      };
-
-    case actions.PUT.CALENDAR_PERMISSION:
-      return {
-        ...state,
-        calendarPermission: action.payload,
+        locationPermission: action.payload,
       };
 
     case actions.PUT.NOTIFICATIONS_PERMISSION:

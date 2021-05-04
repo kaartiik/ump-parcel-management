@@ -19,8 +19,9 @@ import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { register } from '../../providers/actions/User';
+import LoadingIndicator from '../../components/LoadingIndicator';
 import colours from '../../providers/constants/colours';
 
 // import { AuthContext } from '../navigation/AuthProvider';\
@@ -67,6 +68,10 @@ export default function Register({ navigation }) {
   const dispatch = useDispatch();
   const [userImage, setUserImage] = useState(null);
 
+  const { isLoading } = useSelector((state) => ({
+    isLoading: state.userReducer.isLoading,
+  }));
+
   const handleLogin = ({ location, username, mobile, email, password }) => {
     dispatch(register(location, username, mobile, email, password, userImage));
   };
@@ -112,157 +117,165 @@ export default function Register({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
     >
-      <StatusBar barStyle="default" />
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <ScrollView>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.form}>
+              <Formik
+                initialValues={{
+                  location: '',
+                  username: '',
+                  mobile: '',
+                  email: '',
+                  password: '',
+                }}
+                onSubmit={(values) => handleLogin(values)}
+                validationSchema={validationSchema}
+              >
+                {({
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  setFieldValue,
+                  touched,
+                  values,
+                  submitCount,
+                  errors,
+                }) => {
+                  return (
+                    <View style={{ padding: 10 }}>
+                      <Text style={styles.greeting}>
+                        {'Hello there.\nRegister an account.'}
+                      </Text>
 
-      <Text style={styles.greeting}>
-        {'Hello there.\nRegister an account.'}
-      </Text>
+                      <View style={{ alignItems: 'center' }}>
+                        {userImage === null ? (
+                          <Image
+                            source={require('../../../assets/default_avatar.jpg')}
+                            style={{
+                              height: IMAGE_DIMENSION,
+                              width: IMAGE_DIMENSION,
+                              borderRadius: IMAGE_DIMENSION / 2,
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={{ uri: userImage.imageUri }}
+                            style={{
+                              height: IMAGE_DIMENSION,
+                              width: IMAGE_DIMENSION,
+                              borderRadius: IMAGE_DIMENSION / 2,
+                            }}
+                          />
+                        )}
 
-      <ScrollView>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.form}>
-            <Formik
-              initialValues={{
-                location: '',
-                username: '',
-                mobile: '',
-                email: '',
-                password: '',
-              }}
-              onSubmit={(values) => handleLogin(values)}
-              validationSchema={validationSchema}
-            >
-              {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                setFieldValue,
-                touched,
-                values,
-                submitCount,
-                errors,
-              }) => {
-                return (
-                  <View style={{ padding: 10 }}>
-                    <View style={{ alignItems: 'center' }}>
-                      {userImage === null ? (
-                        <Image
-                          source={require('../../../assets/default_avatar.jpg')}
-                          style={{
-                            height: IMAGE_DIMENSION,
-                            width: IMAGE_DIMENSION,
-                            borderRadius: IMAGE_DIMENSION / 2,
-                          }}
+                        <TouchableOpacity onPress={() => findNewImage()}>
+                          <Text>Edit Image</Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      <View style={styles.textboxContainer}>
+                        <TextInput
+                          placeholder="Enter email..."
+                          value={values.email}
+                          onChangeText={handleChange('email')}
+                          onBlur={handleBlur('email')}
                         />
-                      ) : (
-                        <Image
-                          source={{ uri: userImage.imageUri }}
-                          style={{
-                            height: IMAGE_DIMENSION,
-                            width: IMAGE_DIMENSION,
-                            borderRadius: IMAGE_DIMENSION / 2,
-                          }}
-                        />
-                      )}
+                      </View>
+                      <Text style={{ color: 'red' }}>
+                        {(touched.email || submitCount > 0) && errors.email}
+                      </Text>
 
-                      <TouchableOpacity onPress={() => findNewImage()}>
-                        <Text>Edit Image</Text>
+                      <View style={styles.textboxContainer}>
+                        <TextInput
+                          secureTextEntry
+                          placeholder="Enter password..."
+                          value={values.password}
+                          onChangeText={handleChange('password')}
+                          onBlur={handleBlur('password')}
+                        />
+                      </View>
+                      <Text style={{ color: 'red' }}>
+                        {(touched.password || submitCount > 0) &&
+                          errors.password}
+                      </Text>
+
+                      <View style={styles.textboxContainer}>
+                        <TextInput
+                          placeholder="Enter username..."
+                          value={values.username}
+                          onChangeText={handleChange('username')}
+                          onBlur={handleBlur('username')}
+                        />
+                      </View>
+                      <Text style={{ color: 'red' }}>
+                        {(touched.username || submitCount > 0) &&
+                          errors.username}
+                      </Text>
+
+                      <View style={styles.textboxContainer}>
+                        <TextInput
+                          placeholder="Enter mobile number..."
+                          value={values.mobile}
+                          onChangeText={handleChange('mobile')}
+                          onBlur={handleBlur('mobile')}
+                        />
+                      </View>
+                      <Text style={{ color: 'red' }}>
+                        {(touched.mobile || submitCount > 0) && errors.mobile}
+                      </Text>
+
+                      <View style={styles.textboxContainer}>
+                        <TextInput
+                          placeholder="Enter location..."
+                          value={values.location}
+                          onChangeText={handleChange('location')}
+                          onBlur={handleBlur('location')}
+                        />
+                      </View>
+                      <Text style={{ color: 'red' }}>
+                        {(touched.location || submitCount > 0) &&
+                          errors.location}
+                      </Text>
+
+                      <TouchableOpacity
+                        style={styles.bigBtn}
+                        onPress={() =>
+                          getLocationAsync(setFieldValue, 'location')
+                        }
+                      >
+                        <Text style={{ color: 'white' }}>Detect Location</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.bigBtn}
+                        onPress={handleSubmit}
+                        title="SUBMIT"
+                      >
+                        <Text style={{ color: 'white' }}>Register</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={() => navigation.goBack()}
+                      >
+                        <Text style={{ color: 'blue' }}>
+                          Aready have an account? Sign in here.
+                        </Text>
                       </TouchableOpacity>
                     </View>
-
-                    <View style={styles.textboxContainer}>
-                      <TextInput
-                        placeholder="Enter email..."
-                        value={values.email}
-                        onChangeText={handleChange('email')}
-                        onBlur={handleBlur('email')}
-                      />
-                    </View>
-                    <Text style={{ color: 'red' }}>
-                      {(touched.email || submitCount > 0) && errors.email}
-                    </Text>
-
-                    <View style={styles.textboxContainer}>
-                      <TextInput
-                        secureTextEntry
-                        placeholder="Enter password..."
-                        value={values.password}
-                        onChangeText={handleChange('password')}
-                        onBlur={handleBlur('password')}
-                      />
-                    </View>
-                    <Text style={{ color: 'red' }}>
-                      {(touched.password || submitCount > 0) && errors.password}
-                    </Text>
-
-                    <View style={styles.textboxContainer}>
-                      <TextInput
-                        placeholder="Enter username..."
-                        value={values.username}
-                        onChangeText={handleChange('username')}
-                        onBlur={handleBlur('username')}
-                      />
-                    </View>
-                    <Text style={{ color: 'red' }}>
-                      {(touched.username || submitCount > 0) && errors.username}
-                    </Text>
-
-                    <View style={styles.textboxContainer}>
-                      <TextInput
-                        placeholder="Enter mobile number..."
-                        value={values.mobile}
-                        onChangeText={handleChange('mobile')}
-                        onBlur={handleBlur('mobile')}
-                      />
-                    </View>
-                    <Text style={{ color: 'red' }}>
-                      {(touched.mobile || submitCount > 0) && errors.mobile}
-                    </Text>
-
-                    <View style={styles.textboxContainer}>
-                      <TextInput
-                        placeholder="Enter location..."
-                        value={values.location}
-                        onChangeText={handleChange('location')}
-                        onBlur={handleBlur('location')}
-                      />
-                    </View>
-                    <Text style={{ color: 'red' }}>
-                      {(touched.location || submitCount > 0) && errors.location}
-                    </Text>
-
-                    <TouchableOpacity
-                      style={styles.bigBtn}
-                      onPress={() =>
-                        getLocationAsync(setFieldValue, 'location')
-                      }
-                    >
-                      <Text style={{ color: 'white' }}>Detect Location</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.bigBtn}
-                      onPress={handleSubmit}
-                      title="SUBMIT"
-                    >
-                      <Text style={{ color: 'white' }}>Register</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={{ justifyContent: 'center', alignItems: 'center' }}
-                      onPress={() => navigation.goBack()}
-                    >
-                      <Text style={{ color: 'blue' }}>
-                        Aready have an account? Sign in here.
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                );
-              }}
-            </Formik>
-          </View>
-        </TouchableWithoutFeedback>
-      </ScrollView>
+                  );
+                }}
+              </Formik>
+            </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
+      )}
     </KeyboardAvoidingView>
   );
 }

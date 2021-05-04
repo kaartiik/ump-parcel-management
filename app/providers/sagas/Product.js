@@ -158,6 +158,7 @@ function* addProductSaga({ payload }) {
     });
 
     yield put(putLoadingStatus(false));
+    alert('Product added.');
   } catch (error) {
     yield put(putLoadingStatus(false));
     alert(`Error adding product. ${error}`);
@@ -338,7 +339,7 @@ function* deleteProductSaga({ payload }) {
   }
 }
 
-export default function* Barber() {
+export default function* Product() {
   yield all([
     takeLatest(actions.GET.ALL_PRODUCTS, getAllProductsSaga),
     takeLatest(actions.GET.MY_PRODUCTS, getMyProductsSaga),

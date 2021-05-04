@@ -79,7 +79,7 @@ const IMAGE_DIMENSION = 100;
 const GeneralInfo = ({ title, info }) => (
   <View style={{ flexDirection: 'row', marginLeft: 10, marginVertical: 5 }}>
     <Text style={{ fontSize: 16, marginRight: 8 }}>{title}: </Text>
-    <Text>{info}</Text>
+    <Text style={{ flex: 1 }}>{info}</Text>
   </View>
 );
 
@@ -122,7 +122,9 @@ function Profile({ route, navigation }) {
           }}
         >
           <View style={{ alignItems: 'center', marginBottom: 20 }}>
-            {profilePicture === null || profilePicture === undefined ? (
+            {profilePicture === null ||
+            profilePicture === undefined ||
+            profilePicture.imageUri === '' ? (
               <Image
                 source={require('../../../assets/default_avatar.jpg')}
                 style={{

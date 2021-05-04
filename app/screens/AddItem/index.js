@@ -35,6 +35,11 @@ const styles = StyleSheet.create({
     padding: 5,
     marginVertical: 5,
   },
+  pickerOuterContainer: {
+    borderWidth: 0.5,
+    borderRadius: 4,
+    borderColor: colours.themePrimary,
+  },
   componentContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -117,7 +122,6 @@ export default function AddItem({ route, navigation }) {
   const clearText = () => {
     fieldRefName.current.clear();
     fieldRefDescr.current.clear();
-    fieldRefPrice.current.clear();
     fieldRefMeetUpLocation.current.clear();
     setProductImages([]);
     setProductName('');
@@ -151,11 +155,30 @@ export default function AddItem({ route, navigation }) {
     setSubmitCount(submitCount + 1);
     if (
       productImages.length > 0 &&
-      sellType !== '' &&
+      sellType === 'Sell' &&
       category !== '' &&
       productName !== '' &&
       description !== '' &&
       price !== '' &&
+      meetUpLocation !== ''
+    ) {
+      dispatch(
+        addProduct(
+          productName,
+          category,
+          description,
+          price,
+          sellType,
+          productImages,
+          meetUpLocation
+        )
+      );
+    } else if (
+      productImages.length > 0 &&
+      sellType === 'Donate' &&
+      category !== '' &&
+      productName !== '' &&
+      description !== '' &&
       meetUpLocation !== ''
     ) {
       dispatch(
@@ -233,32 +256,36 @@ export default function AddItem({ route, navigation }) {
               />
 
               <View style={{ margin: 20 }}>
-                <Picker
-                  style={styles.pickerContainer}
-                  selectedValue={category}
-                  onValueChange={(value) => setCategory(value)}
-                >
-                  {productCategories.map((item, idx) => (
-                    <Picker.Item
-                      key={idx}
-                      label={item.label}
-                      value={item.value}
-                    />
-                  ))}
-                </Picker>
+                <View style={styles.pickerOuterContainer}>
+                  <Picker
+                    style={styles.pickerContainer}
+                    selectedValue={category}
+                    onValueChange={(value) => setCategory(value)}
+                  >
+                    {productCategories.map((item, idx) => (
+                      <Picker.Item
+                        key={idx}
+                        label={item.label}
+                        value={item.value}
+                      />
+                    ))}
+                  </Picker>
+                </View>
                 <Text style={{ color: 'red' }}>
                   {submitCount > 0 && category === '' && 'Required'}
                 </Text>
 
-                <Picker
-                  style={styles.pickerContainer}
-                  selectedValue={sellType}
-                  onValueChange={(value) => setSellType(value)}
-                >
-                  <Picker.Item label="Select" value="" />
-                  <Picker.Item label="Sell" value="Sell" />
-                  <Picker.Item label="Donate" value="Donate" />
-                </Picker>
+                <View style={styles.pickerOuterContainer}>
+                  <Picker
+                    style={styles.pickerContainer}
+                    selectedValue={sellType}
+                    onValueChange={(value) => setSellType(value)}
+                  >
+                    <Picker.Item label="Select" value="" />
+                    <Picker.Item label="Sell" value="Sell" />
+                    <Picker.Item label="Donate" value="Donate" />
+                  </Picker>
+                </View>
                 <Text style={{ color: 'red' }}>
                   {submitCount > 0 && sellType === '' && 'Required'}
                 </Text>
@@ -289,18 +316,25 @@ export default function AddItem({ route, navigation }) {
                   {submitCount > 0 && description === '' && 'Required'}
                 </Text>
 
-                <View style={styles.textboxContainer}>
-                  <TextInput
-                    ref={fieldRefPrice}
-                    placeholder="Enter price..."
-                    keyboardType="numeric"
-                    value={price}
-                    onChangeText={(text) => setPrice(text)}
-                  />
-                </View>
-                <Text style={{ color: 'red' }}>
-                  {submitCount > 0 && price === '' && 'Required'}
-                </Text>
+                {sellType === 'Sell' && (
+                  <>
+                    <View style={styles.textboxContainer}>
+                      <TextInput
+                        ref={fieldRefPrice}
+                        placeholder="Enter price..."
+                        keyboardType="numeric"
+                        value={price}
+                        onChangeText={(text) => setPrice(text)}
+                      />
+                    </View>
+                    <Text style={{ color: 'red' }}>
+                      {submitCount > 0 &&
+                        sellType === 'Sell' &&
+                        price === '' &&
+                        'Required'}
+                    </Text>
+                  </>
+                )}
 
                 <View style={styles.textboxContainer}>
                   <TextInput

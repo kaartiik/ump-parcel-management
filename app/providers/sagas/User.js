@@ -98,6 +98,7 @@ function* getExpoToken() {
 }
 
 function* syncUserSaga() {
+  yield put(putLoadingStatus(true));
   const user = yield call(onAuthStateChanged);
 
   if (user) {
@@ -112,11 +113,15 @@ function* syncUserSaga() {
 
       yield fork(startListener);
 
+      yield put(putLoadingStatus(false));
+
       setTimeout(() => {
         reset('AppStack');
       }, 100);
     }
   } else {
+    yield put(putLoadingStatus(false));
+
     setTimeout(() => {
       reset('AuthStack');
     }, 100);
@@ -125,12 +130,15 @@ function* syncUserSaga() {
 
 function* loginSaga({ email, password }) {
   try {
+    yield put(putLoadingStatus(true));
     yield call(loginRequest, { email, password });
+    yield put(putLoadingStatus(false));
+
+    yield call(syncUserSaga);
   } catch (error) {
     alert(error);
     return;
   }
-  yield call(syncUserSaga);
 }
 
 function* forgotPasswordSaga({ payload }) {
@@ -168,21 +176,27 @@ function* uploadUserImage({ image, uuid }) {
 }
 
 function* registerSaga({ payload }) {
+  yield put(putLoadingStatus(true));
   const { location, username, mobile, email, password, userImage } = payload;
-
   try {
     const { user } = yield call(
       rsf.auth.createUserWithEmailAndPassword,
       email,
       password
     );
-
     const { token: pushToken } = yield call(getExpoToken);
 
-    const profilePicture = yield call(uploadUserImage, {
-      image: userImage,
-      uuid: user.uid,
-    });
+    let profilePicture = {
+      image_name: '',
+      image_url: '',
+    };
+
+    if (userImage !== '' && userImage !== null && userImage !== undefined) {
+      profilePicture = yield call(uploadUserImage, {
+        image: userImage,
+        uuid: user.uid,
+      });
+    }
 
     yield call(rsf.database.update, `users/${user.uid}`, {
       location,
@@ -195,9 +209,11 @@ function* registerSaga({ payload }) {
       profile_picture: profilePicture,
     });
 
-    // yield call(syncUserSaga);
+    yield put(putLoadingStatus(false));
+
+    yield call(syncUserSaga);
   } catch (error) {
-    alert(`didt register ${error}`);
+    alert(`Failed to register ${error}`);
     return;
   }
 }
@@ -424,7 +440,6 @@ function* getChatUserDetailsSaga({ payload }) {
 
 export default function* User() {
   yield all([
-    takeLatest(actions.REGISTER_REQUEST, registerSaga),
     takeLatest(actions.REGISTER_REQUEST, registerSaga),
     takeLatest(actions.LOGIN.REQUEST, loginSaga),
     takeLatest(actions.LOGOUT.REQUEST, logoutSaga),
