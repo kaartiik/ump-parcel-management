@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   bigBtn: {
+    marginVertical: 5,
     marginHorizontal: 30,
     backgroundColor: colours.themePrimary,
     borderRadius: 4,

@@ -403,7 +403,7 @@ function* startListener() {
           const chatUser = {
             uid: key,
             token: userDetails.token,
-            name: userDetails.name,
+            name: userDetails.username,
             msg: chatMessagesArr[0].message,
             time: chatMessagesArr[0].time,
           };
@@ -428,7 +428,7 @@ function* getChatUserDetailsSaga({ payload }) {
     yield call(navigate, 'Chats', {
       screen: 'ChatScreen',
       params: {
-        nameClicked: userDetails.name,
+        nameClicked: userDetails.username,
         uidClicked: userDetails.uuid,
         tokenClicked: userDetails.token,
       },

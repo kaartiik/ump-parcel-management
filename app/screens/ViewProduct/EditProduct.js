@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
 });
 
 const productCategories = [
-  { label: 'Select', value: '' },
+  { label: 'Select Category', value: '' },
   { label: 'Books & Stationeries', value: 'c1' },
   { label: 'Clothes & Accessories', value: 'c2' },
   { label: 'Food', value: 'c3' },
@@ -301,7 +301,7 @@ export default function EditProduct({ route, navigation }) {
                     selectedValue={sellType}
                     onValueChange={(value) => setSellType(value)}
                   >
-                    <Picker.Item label="Select" value="" />
+                    <Picker.Item label="Select Type of Business" value="" />
                     <Picker.Item label="Sell" value="Sell" />
                     <Picker.Item label="Donate" value="Donate" />
                   </Picker>
