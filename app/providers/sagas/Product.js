@@ -16,6 +16,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import rsf, { database } from '../config';
 import {
   actions,
+  putAllProductsOri,
   putAllProducts,
   putMyProducts,
   putProductUserInfo,
@@ -27,6 +28,8 @@ import { navigate, reset } from '../services/NavigatorService';
 dayjs.extend(customParseFormat);
 
 const getUuidFromState = (state) => state.userReducer.uuid;
+
+const getOriProductsFromState = (state) => state.productReducer.allProductsOri;
 
 const fetchNewProductKey = () => database.ref('products').push().key;
 
@@ -40,9 +43,11 @@ function* getAllProductsSaga() {
     if (exists) {
       const productsArr = Object.values(data);
       yield put(putAllProducts(productsArr));
+      yield put(putAllProductsOri(productsArr));
       yield put(putLoadingStatus(false));
     } else {
       yield put(putAllProducts([]));
+      yield put(putAllProductsOri([]));
       yield put(putLoadingStatus(false));
     }
   } catch (error) {
@@ -83,6 +88,27 @@ function* getMyProductsSaga() {
   }
 }
 
+function* getCategoryProductsSaga({ payload }) {
+  yield put(putLoadingStatus(true));
+  try {
+    const category = payload;
+    const oriListProducts = yield select(getOriProductsFromState);
+
+    if (category === 'all') {
+      yield put(putAllProducts(oriListProducts));
+    } else {
+      const categoryProducts = oriListProducts.filter(
+        (item) => item.category === category
+      );
+      yield put(putAllProducts(categoryProducts));
+    }
+    yield put(putLoadingStatus(false));
+  } catch (error) {
+    yield put(putLoadingStatus(false));
+    alert(`Error retrieving products! ${error}`);
+  }
+}
+
 function* uploadProductImages(images, productKey) {
   try {
     const finalImages = {};
@@ -98,7 +124,6 @@ function* uploadProductImages(images, productKey) {
 
         task.on('state_changed', (snapshot) => {
           const pct = (snapshot.bytesTransferred * 100) / snapshot.totalBytes;
-          console.log(`${pct}%`);
         });
 
         // Wait for upload to complete
@@ -343,6 +368,7 @@ export default function* Product() {
   yield all([
     takeLatest(actions.GET.ALL_PRODUCTS, getAllProductsSaga),
     takeLatest(actions.GET.MY_PRODUCTS, getMyProductsSaga),
+    takeLatest(actions.GET.CATEGORY_PRODUCTS, getCategoryProductsSaga),
     takeLatest(actions.ADD.PRODUCT, addProductSaga),
     takeLatest(actions.DELETE.PRODUCT, deleteProductSaga),
     takeLatest(actions.GET.PRODUCT_USER_INFO, getProductUserInfoSaga),

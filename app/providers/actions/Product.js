@@ -2,11 +2,14 @@ export const actions = {
   GET: {
     ALL_PRODUCTS: 'GET_ALL_PRODUCTS',
     MY_PRODUCTS: 'GET_MY_PRODUCTS',
+    CATEGORY_PRODUCTS: 'GET_CATEGORY_PRODUCTS',
     PRODUCT_USER_INFO: 'GET_PRODUCT_USER_INFO',
   },
   PUT: {
+    ALL_PRODUCTS_ORI: 'PUT_ALL_PRODUCTS_ORI',
     ALL_PRODUCTS: 'PUT_ALL_PRODUCTS',
     MY_PRODUCTS: 'PUT_MY_PRODUCTS',
+    CATEGORY_PRODUCTS: 'PUT_CATEGORY_PRODUCTS',
     CURRENT_PRODUCT: 'PUT_CURRENT_PRODUCT',
     PRODUCT_USER_INFO: 'PUT,pRODUCT_USER_INFO',
     LOADING_STATUS: 'PUT_LOADING_STATUS',
@@ -94,12 +97,27 @@ export const putCurrentProduct = (product) => ({
   payload: product,
 });
 
+export const getCategoryProducts = (category) => ({
+  type: actions.GET.CATEGORY_PRODUCTS,
+  payload: category,
+});
+
 export const getAllProducts = () => ({
   type: actions.GET.ALL_PRODUCTS,
 });
 
 export const getMyProducts = () => ({
   type: actions.GET.MY_PRODUCTS,
+});
+
+export const putCategorylProducts = (products) => ({
+  type: actions.PUT.CATEGORY_PRODUCTS,
+  payload: products,
+});
+
+export const putAllProductsOri = (products) => ({
+  type: actions.PUT.ALL_PRODUCTS_ORI,
+  payload: products,
 });
 
 export const putAllProducts = (products) => ({

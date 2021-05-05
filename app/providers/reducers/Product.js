@@ -1,6 +1,7 @@
 import { actions } from '../actions/Product';
 
 const initialState = {
+  allProductsOri: [],
   allProducts: [],
   myProducts: [],
   productName: '',
@@ -19,6 +20,12 @@ const initialState = {
 
 export default function productReducer(state = initialState, action = {}) {
   switch (action.type) {
+    case actions.PUT.ALL_PRODUCTS_ORI:
+      return {
+        ...state,
+        allProductsOri: action.payload,
+      };
+
     case actions.PUT.ALL_PRODUCTS:
       return {
         ...state,

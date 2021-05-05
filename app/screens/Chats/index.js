@@ -40,8 +40,6 @@ export default function Chats({ route, navigation }) {
     isLoading: state.userReducer.isLoading,
   }));
 
-  console.log(userChats);
-
   const renderRow = ({ item }) => {
     return (
       <TouchableOpacity

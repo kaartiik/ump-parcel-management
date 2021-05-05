@@ -11,13 +11,14 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-
+import { Item, Picker } from 'native-base';
 import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colours from '../../providers/constants/colours';
 import {
   getAllProducts,
+  getCategoryProducts,
   getProductUserInfo,
 } from '../../providers/actions/Product';
 
@@ -53,17 +54,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  searchBox: {
-    marginTop: 10,
-    marginHorizontal: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  textboxContainer: {
     backgroundColor: colours.themePrimaryLight,
     borderRadius: 3,
     padding: 5,
+    marginVertical: 5,
   },
+  pickerOuterContainer: {
+    borderWidth: 0.5,
+    borderRadius: 4,
+    borderColor: colours.themePrimary,
+  },
+  pickerContainer: { width: '95%', alignSelf: 'center' },
 });
+
+const productCategories = [
+  { label: 'All', value: 'all' },
+  { label: 'Books & Stationeries', value: 'c1' },
+  { label: 'Clothes & Accessories', value: 'c2' },
+  { label: 'Food', value: 'c3' },
+  { label: 'Furniture', value: 'c4' },
+  { label: 'Home & Living', value: 'c5' },
+  { label: 'Kitchenware', value: 'c6' },
+  { label: 'Toiletries', value: 'c7' },
+  { label: 'Vehicles & Accessories ', value: 'c8' },
+  { label: 'Others', value: 'c9' },
+];
 
 const RenderItem = ({ item }) => {
   const navigation = useNavigation();
@@ -107,6 +123,9 @@ RenderItem.propTypes = {
 
 function Home({ route, navigation }) {
   const dispatch = useDispatch();
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [data, setData] = useState([]);
 
   const { allProducts, isLoading } = useSelector((state) => ({
     allProducts: state.productReducer.allProducts,
@@ -118,6 +137,22 @@ function Home({ route, navigation }) {
       dispatch(getAllProducts());
     }, [])
   );
+
+  useEffect(() => {
+    setData(allProducts);
+  }, [allProducts]);
+
+  const searchData = (searchText) => {
+    let newData = [];
+    if (searchText) {
+      newData = allProducts.filter((item) => {
+        return item.productName.indexOf(searchText) > -1;
+      });
+      setData([...newData]);
+    } else {
+      setData([...allProducts]);
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -134,8 +169,43 @@ function Home({ route, navigation }) {
       ) : (
         <FlatList
           keyExtractor={(item, index) => index.toString()}
-          data={allProducts}
+          data={data}
           numColumns={2}
+          ListHeaderComponent={
+            <View style={{ padding: 5 }}>
+              <View style={styles.textboxContainer}>
+                <TextInput
+                  placeholder="Search..."
+                  value={search}
+                  onChangeText={(text) => {
+                    setSearch(text);
+                    searchData(text);
+                  }}
+                />
+              </View>
+
+              <Text style={{ marginVertical: 5 }}>Sort by Category</Text>
+
+              <View style={styles.pickerOuterContainer}>
+                <Picker
+                  style={styles.pickerContainer}
+                  selectedValue={category}
+                  onValueChange={(value) => {
+                    setCategory(value);
+                    dispatch(getCategoryProducts(value));
+                  }}
+                >
+                  {productCategories.map((item, idx) => (
+                    <Picker.Item
+                      key={idx}
+                      label={item.label}
+                      value={item.value}
+                    />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+          }
           renderItem={({ item, index }) => (
             <RenderItem key={index} item={item} />
           )}
