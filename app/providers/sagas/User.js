@@ -17,14 +17,13 @@ import { navigate, reset, goBack } from '../services/NavigatorService';
 import rsf, { auth, database } from '../../providers/config';
 import {
   actions,
+  putAllUsers,
+  putAllScans,
   putUserProfile,
   putUserName,
   putUserMobile,
   putUserLocation,
-  putToken,
   putLoadingStatus,
-  putChats,
-  putUserChats,
   putUserProfilePicture,
 } from '../actions/User';
 
@@ -33,7 +32,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
 const getUuidFromState = (state) => state.userReducer.uuid;
-const getNameFromState = (state) => state.userReducer.name;
+const getNameFromState = (state) => state.userReducer.username;
 
 const loginRequest = ({ email, password }) =>
   auth.signInWithEmailAndPassword(email, password);
@@ -60,58 +59,15 @@ const getUserProfile = (uid) =>
     .then((snapshot) => ({ dbUser: snapshot.val() }))
     .catch((error) => ({ error }));
 
-function* getExpoToken() {
-  try {
-    const { status: existingStatus } = yield call(
-      Permissions.getAsync,
-      Permissions.NOTIFICATIONS
-    );
-    let finalStatus = existingStatus;
-
-    // only ask if permissions have not already been determined, because
-    // iOS won't necessarily prompt the user a second time.
-    if (existingStatus !== 'granted') {
-      // Android remote notification permissions are granted during the app
-      // install, so this will only ask on iOS
-      const { status } = yield call(
-        Permissions.askAsync,
-        Permissions.NOTIFICATIONS
-      );
-      finalStatus = status;
-    }
-
-    // Stop here if the user did not grant permissions
-    if (finalStatus !== 'granted') {
-      return { token: '' };
-    }
-
-    // Get the token that uniquely identifies this device
-    const token = yield call(Notifications.getExpoPushTokenAsync);
-
-    return {
-      token,
-    };
-  } catch (error) {
-    alert(`Error uploading expo token: ${error}`);
-    return { token: '' };
-  }
-}
-
 function* syncUserSaga() {
   yield put(putLoadingStatus(true));
   const user = yield call(onAuthStateChanged);
 
   if (user) {
-    const { token: pushToken } = yield call(getExpoToken);
-
-    yield call(rsf.database.update, `users/${user.uid}/token`, pushToken.data);
-
     const { dbUser } = yield call(getUserProfile, user.uid);
 
     if (dbUser !== null && dbUser !== undefined) {
       yield put(putUserProfile(dbUser));
-
-      yield fork(startListener);
 
       yield put(putLoadingStatus(false));
 
@@ -177,36 +133,20 @@ function* uploadUserImage({ image, uuid }) {
 
 function* registerSaga({ payload }) {
   yield put(putLoadingStatus(true));
-  const { location, username, mobile, email, password, userImage } = payload;
+  const { usertype, username, idnumber, email, password } = payload;
   try {
     const { user } = yield call(
       rsf.auth.createUserWithEmailAndPassword,
       email,
       password
     );
-    const { token: pushToken } = yield call(getExpoToken);
-
-    let profilePicture = {
-      image_name: '',
-      image_url: '',
-    };
-
-    if (userImage !== '' && userImage !== null && userImage !== undefined) {
-      profilePicture = yield call(uploadUserImage, {
-        image: userImage,
-        uuid: user.uid,
-      });
-    }
 
     yield call(rsf.database.update, `users/${user.uid}`, {
-      location,
+      usertype,
       username,
-      mobile,
+      idnumber,
       email,
       password,
-      uuid: user.uid,
-      token: pushToken.data,
-      profile_picture: profilePicture,
     });
 
     yield put(putLoadingStatus(false));
@@ -281,160 +221,106 @@ function* updateProfileSaga({ payload }) {
   }
 }
 
-const sendPushNotification = async (receiverToken, senderName, senderMsg) => {
-  const message = {
-    to: receiverToken,
-    sound: 'default',
-    title: senderName,
-    body: senderMsg,
-    data: { data: 'goes here' },
-    _displayInForeground: true,
-  };
-
-  const response = await fetch('https://exp.host/--/api/v2/push/send', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Accept-encoding': 'gzip, deflate',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(message),
-  });
-};
-
-function* sendMesssageSaga({ payload }) {
-  const { receiverUuid, receiverToken, message } = payload;
-  const senderUuid = yield select(getUuidFromState);
-  const senderName = yield select(getNameFromState);
-
-  const messageTime = dayjs().valueOf();
-
-  const msgObject = {
-    from: senderUuid,
-    message: message,
-    time: messageTime,
-    to: receiverUuid,
-  };
-
+function* getAllUsersSaga({ payload }) {
   try {
-    yield call(
-      rsf.database.update,
-      `chats/${senderUuid}/${receiverUuid}/${messageTime}`,
-      msgObject
-    );
-    yield call(
-      rsf.database.update,
-      `chats/${receiverUuid}/${senderUuid}/${messageTime}`,
-      msgObject
-    );
+    yield put(putLoadingStatus(true));
 
-    yield call(sendPushNotification, receiverToken, senderName, message);
-  } catch (error) {
-    alert(`Failed to send message. Please try again. ${error}`);
-  }
-}
+    const data = yield call(rsf.database.read, `users`);
 
-function* sendProductSaga({ payload }) {
-  const { receiverUuid, receiverToken, product } = payload;
-  const senderUuid = yield select(getUuidFromState);
-  const senderName = yield select(getNameFromState);
+    const exists = data !== null && data !== undefined;
 
-  const messageTime = dayjs().valueOf();
-
-  const msgObject = {
-    from: senderUuid,
-    message: '',
-    time: messageTime,
-    to: receiverUuid,
-    productDetails: {
-      productName: product.productName,
-      productPrice: product.price,
-      productSellType: product.sellType,
-      productPicture: Object.values(product.productImages)[0].imageUri,
-    },
-  };
-
-  try {
-    yield call(
-      rsf.database.update,
-      `chats/${senderUuid}/${receiverUuid}/${messageTime}`,
-      msgObject
-    );
-    yield call(
-      rsf.database.update,
-      `chats/${receiverUuid}/${senderUuid}/${messageTime}`,
-      msgObject
-    );
-
-    yield call(sendPushNotification, receiverToken, senderName, 'Picture');
-  } catch (error) {
-    alert(`Failed to send message. Please try again. ${error}`);
-  }
-}
-
-function* startListener() {
-  // #1
-  const uuid = yield select(getUuidFromState);
-  const channel = new eventChannel((emiter) => {
-    const listener = database.ref(`chats/${uuid}`).on('value', (snapshot) => {
-      emiter({ data: snapshot.val() || {} });
-    });
-
-    // #2
-    return () => {
-      listener.off();
-    };
-  });
-
-  // #3
-  while (true) {
-    const { data } = yield take(channel);
-    // #4
-    if (data !== null && data !== undefined) {
-      const receiverKeys = Object.keys(data);
-      yield put(putChats(data));
-
-      const newUserChats = yield all(
-        receiverKeys.map(function* (key, idx) {
-          const userDetails = yield call(rsf.database.read, `users/${key}`);
-          const chatObject = data[key];
-          const chatMessagesArr = Object.values(chatObject);
-
-          const chatUser = {
-            uid: key,
-            token: userDetails.token,
-            name: userDetails.username,
-            msg: chatMessagesArr[0].message,
-            time: chatMessagesArr[0].time,
-          };
-
-          return chatUser;
-        })
-      );
-      yield put(putUserChats(newUserChats));
+    if (exists) {
+      const usersArr = Object.values(data);
+      yield put(putAllUsers(usersArr));
     } else {
-      yield put(putUserChats([]));
+      yield put(putAllUsers([]));
     }
-    // yield put(actionsCreators.updateList(data));
+
+    yield put(putLoadingStatus(false));
+  } catch (error) {
+    yield put(putLoadingStatus(false));
+    alert(error);
   }
 }
 
-function* getChatUserDetailsSaga({ payload }) {
-  const userUuid = payload;
-
+function* getAllScannedParcelSaga({ payload }) {
   try {
-    const userDetails = yield call(rsf.database.read, `users/${userUuid}`);
+    yield put(putLoadingStatus(true));
 
-    yield call(navigate, 'Chats', {
-      screen: 'ChatScreen',
-      params: {
-        nameClicked: userDetails.username,
-        uidClicked: userDetails.uuid,
-        tokenClicked: userDetails.token,
-      },
-    });
+    const data = yield call(rsf.database.read, `all_scans`);
+
+    const exists = data !== null && data !== undefined;
+
+    if (exists) {
+      const scansArr = Object.values(data);
+      yield put(putAllScans(scansArr));
+    } else {
+      yield put(putAllScans([]));
+    }
+
+    yield put(putLoadingStatus(false));
   } catch (error) {
-    alert(`Failed to retrieve user. ${error}`);
+    yield put(putLoadingStatus(false));
+    alert(error);
+  }
+}
+
+function* getMyScannedParcelSaga({ payload }) {
+  try {
+    yield put(putLoadingStatus(true));
+
+    const uuid = yield select(getUuidFromState);
+
+    const data = yield call(rsf.database.read, `users/${uuid}/my_scans`);
+
+    const exists = data !== null && data !== undefined;
+
+    if (exists) {
+      const scansArr = Object.values(data);
+      yield put(putAllScans(scansArr));
+    } else {
+      yield put(putAllScans([]));
+    }
+
+    yield put(putLoadingStatus(false));
+  } catch (error) {
+    yield put(putLoadingStatus(false));
+    alert(error);
+  }
+}
+
+function* addScannedParcelSaga({ payload }) {
+  const { username, usertype, idnumber, email, time, location, onSuccess } =
+    payload;
+  try {
+    yield put(putLoadingStatus(true));
+    const uuid = yield select(getUuidFromState);
+    const uniqueid = Date.now();
+
+    yield call(rsf.database.update, `users/${uuid}`, {
+      username,
+      usertype,
+      idnumber,
+      email,
+      time,
+      location,
+    });
+
+    yield call(rsf.database.update, `all_scans/${uuid}_${uniqueid}`, {
+      username,
+      usertype,
+      idnumber,
+      email,
+      time,
+      location,
+    });
+
+    onSuccess();
+
+    yield put(putLoadingStatus(false));
+  } catch (error) {
+    yield put(putLoadingStatus(false));
+    alert(error);
   }
 }
 
@@ -445,9 +331,10 @@ export default function* User() {
     takeLatest(actions.LOGOUT.REQUEST, logoutSaga),
     takeLatest(actions.FORGOT_PASSWORD, forgotPasswordSaga),
     takeEvery(actions.SYNC_USER, syncUserSaga),
+    takeLatest(actions.ADD.SCANNED_DETAILS, addScannedParcelSaga),
+    takeLatest(actions.GET.ALL_USERS, getAllUsersSaga),
+    takeLatest(actions.GET.MY_SCANS, getMyScannedParcelSaga),
+    takeLatest(actions.GET.ALL_SCANS, getAllScannedParcelSaga),
     takeLatest(actions.UPDATE.USER_PROFILE, updateProfileSaga),
-    takeLatest(actions.SEND_MESSAGE, sendMesssageSaga),
-    takeLatest(actions.SEND_PRODUCT, sendProductSaga),
-    takeLatest(actions.GET.CHAT_USER_DETAILS, getChatUserDetailsSaga),
   ]);
 }

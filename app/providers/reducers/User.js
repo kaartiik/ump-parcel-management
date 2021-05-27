@@ -2,54 +2,40 @@ import { actions } from '../actions/User';
 
 const initialState = {
   username: '',
-  location: '',
+  usertype: '',
   email: '',
-  mobile: '',
+  idnumber: '',
   uuid: '',
-  profilePicture: null,
-  token: '',
-  userChats: [],
-  allChats: null,
+  users: [],
+  scans: [],
   isLoading: false,
 };
 
 export default function userReducer(state = initialState, action = {}) {
   switch (action.type) {
     case actions.PUT.USER_PROFILE: {
-      const {
-        uuid,
-        username,
-        email,
-        mobile,
-        profile_picture,
-        location,
-        token,
-      } = action.payload;
+      const { uuid, username, email, idnumber, usertype } = action.payload;
       return {
         ...state,
         uuid,
         username,
         email,
-        mobile,
-        profilePicture: {
-          imageName: profile_picture.image_name,
-          imageUri: profile_picture.image_url,
-        },
-        location,
-        token,
+        idnumber,
+        usertype,
       };
     }
 
-    case actions.PUT.USER_PROFILE_PICTURE: {
-      const profile_picture = action.payload;
+    case actions.PUT.ALL_USERS:
       return {
         ...state,
-        profilePicture: {
-          imageName: profile_picture.image_name,
-          imageUri: profile_picture.image_url,
-        },
+        users: action.payload,
       };
-    }
+
+    case actions.PUT.ALL_SCANS:
+      return {
+        ...state,
+        scans: action.payload,
+      };
 
     case actions.PUT.USERNAME:
       return {

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "uniSMart",
-    "slug": "unismart-app",
+    "name": "UMP Parcel Management",
+    "slug": "ump-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/app_icon.png",
@@ -17,11 +17,11 @@
       "**/*"
     ],
     "ios": {
-      "bundleIdentifier": "com.example.unismart",
+      "bundleIdentifier": "com.example.ump",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.example.unismart",
+      "package": "com.example.ump",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/app_icon.png",

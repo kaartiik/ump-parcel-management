@@ -16,7 +16,10 @@ import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colours from '../../providers/constants/colours';
-import { getAllScans, getMyScans } from '../../providers/actions/User';
+import {
+  getMyProducts,
+  getProductUserInfo,
+} from '../../providers/actions/Product';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -66,17 +69,14 @@ const RenderItem = ({ item }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   return (
-    <TouchableOpacity
+    <View
       style={{ marginTop: 10, padding: 10 }}
       onPress={() => dispatch(getProductUserInfo(item))}
     >
-      <Image
-        source={{ uri: Object.values(item.productImages)[0].image_url }}
-        style={{ height: 150, width: 150, borderRadius: 4 }}
-      />
       <View
         style={{
           backgroundColor: 'rgba(52, 52, 52, 0.8)',
+          bottom: 0,
           borderBottomLeftRadius: 4,
           borderBottomRightRadius: 4,
           paddingHorizontal: 5,
@@ -92,12 +92,8 @@ const RenderItem = ({ item }) => {
           {item.usertype}
         </Text>
         <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.email}</Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          {item.location}
-        </Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.time}</Text>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
@@ -105,11 +101,11 @@ RenderItem.propTypes = {
   item: PropTypes.object.isRequired,
 };
 
-function MyItems({ route, navigation }) {
+function Users({ route, navigation }) {
   const dispatch = useDispatch();
 
-  const { scans, isLoading } = useSelector((state) => ({
-    scans: state.userReducer.scans,
+  const { users, isLoading } = useSelector((state) => ({
+    users: state.userReducer.users,
     isLoading: state.userReducer.isLoading,
   }));
 
@@ -124,7 +120,7 @@ function MyItems({ route, navigation }) {
       <AppBar />
 
       <View style={{ padding: 10 }}>
-        <Text style={{ fontSize: 18 }}>My Scans</Text>
+        <Text style={{ fontSize: 18 }}>Users</Text>
 
         <View style={styles.divider} />
       </View>
@@ -134,14 +130,14 @@ function MyItems({ route, navigation }) {
       ) : (
         <FlatList
           keyExtractor={(item, index) => index.toString()}
-          data={scans}
+          data={users}
           numColumns={2}
           renderItem={({ item, index }) => (
             <RenderItem key={index} item={item} />
           )}
           ListEmptyComponent={
             <View style={styles.flatlistEmptyContainer}>
-              <Text>No scans</Text>
+              <Text>No users</Text>
             </View>
           }
         />
@@ -150,4 +146,4 @@ function MyItems({ route, navigation }) {
   );
 }
 
-export default MyItems;
+export default Users;

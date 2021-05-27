@@ -14,9 +14,7 @@ import {
   TextInput,
   Image,
 } from 'react-native';
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
-import * as ImagePicker from 'expo-image-picker';
+import { Item, Picker } from 'native-base';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
@@ -54,63 +52,39 @@ const styles = StyleSheet.create({
     marginBottom: 48,
     marginHorizontal: 30,
   },
+  pickerOuterContainer: {
+    borderWidth: 0.5,
+    borderRadius: 4,
+    borderColor: colours.themePrimary,
+    marginTop: 10,
+  },
+  pickerContainer: { width: '95%', alignSelf: 'center' },
 });
 
 const validationSchema = yup.object().shape({
+  usertype: yup.string().required('Required'),
   username: yup.string().required('Required'),
-  mobile: yup.string().required('Required'),
+  idnumber: yup.string().required('Required'),
   email: yup.string().required('Required').email('Please enter a valid email'),
   password: yup.string().required('Required').min(6, 'Minimum 6 characters'),
-  location: yup.string().required('Required'),
 });
+
+const USER_TYPES = [
+  { label: 'Admin', value: 'Admin' },
+  { label: 'Staff', value: 'Staff' },
+  { label: 'Student', value: 'Student' },
+];
 
 export default function Register({ navigation }) {
   LayoutAnimation.easeInEaseOut();
   const dispatch = useDispatch();
-  const [userImage, setUserImage] = useState(null);
 
   const { isLoading } = useSelector((state) => ({
     isLoading: state.userReducer.isLoading,
   }));
 
-  const handleLogin = ({ location, username, mobile, email, password }) => {
-    dispatch(register(location, username, mobile, email, password, userImage));
-  };
-
-  const findNewImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'Images',
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.cancelled) {
-      setUserImage({
-        imageUri: result.uri,
-        imageName: result.uri.substring(result.uri.lastIndexOf('/') + 1),
-      });
-    }
-  };
-
-  const getLocationAsync = async (setFieldValue, field) => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status !== 'granted') {
-      alert('Permission to access location was denied');
-    }
-
-    let location = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Highest,
-    });
-    const { latitude, longitude } = location.coords;
-    getGeocodeAsync({ latitude, longitude }, setFieldValue, field);
-  };
-
-  const getGeocodeAsync = async (location, setFieldValue, field) => {
-    let geocode = await Location.reverseGeocodeAsync(location);
-    setFieldValue(
-      field,
-      `${geocode[0].street}, ${geocode[0].city}, ${geocode[0].district}, ${geocode[0].region}`
-    );
+  const handleLogin = ({ usertype, username, idnumber, email, password }) => {
+    dispatch(register(usertype, username, idnumber, email, password));
   };
 
   return (
@@ -126,9 +100,9 @@ export default function Register({ navigation }) {
             <View style={styles.form}>
               <Formik
                 initialValues={{
-                  location: '',
+                  usertype: '',
                   username: '',
-                  mobile: '',
+                  idnumber: '',
                   email: '',
                   password: '',
                 }}
@@ -151,31 +125,58 @@ export default function Register({ navigation }) {
                         {'Hello there.\nRegister an account.'}
                       </Text>
 
-                      <View style={{ alignItems: 'center' }}>
-                        {userImage === null ? (
-                          <Image
-                            source={require('../../../assets/default_avatar.jpg')}
-                            style={{
-                              height: IMAGE_DIMENSION,
-                              width: IMAGE_DIMENSION,
-                              borderRadius: IMAGE_DIMENSION / 2,
-                            }}
+                      <View style={styles.pickerOuterContainer}>
+                        <Picker
+                          style={styles.pickerContainer}
+                          selectedValue={values.usertype}
+                          onValueChange={(value) =>
+                            setFieldValue('usertype', value)
+                          }
+                        >
+                          <Picker.Item
+                            key="default"
+                            label="Select user type"
+                            value=""
                           />
-                        ) : (
-                          <Image
-                            source={{ uri: userImage.imageUri }}
-                            style={{
-                              height: IMAGE_DIMENSION,
-                              width: IMAGE_DIMENSION,
-                              borderRadius: IMAGE_DIMENSION / 2,
-                            }}
-                          />
-                        )}
-
-                        <TouchableOpacity onPress={() => findNewImage()}>
-                          <Text>Edit Image</Text>
-                        </TouchableOpacity>
+                          {USER_TYPES.map((item, idx) => (
+                            <Picker.Item
+                              key={idx}
+                              label={item.label}
+                              value={item.value}
+                            />
+                          ))}
+                        </Picker>
                       </View>
+                      <Text style={{ color: 'red' }}>
+                        {(touched.usertype || submitCount > 0) &&
+                          errors.usertype}
+                      </Text>
+
+                      <View style={styles.textboxContainer}>
+                        <TextInput
+                          placeholder="Enter name..."
+                          value={values.username}
+                          onChangeText={handleChange('username')}
+                          onBlur={handleBlur('username')}
+                        />
+                      </View>
+                      <Text style={{ color: 'red' }}>
+                        {(touched.username || submitCount > 0) &&
+                          errors.username}
+                      </Text>
+
+                      <View style={styles.textboxContainer}>
+                        <TextInput
+                          placeholder="Enter ID number..."
+                          value={values.idnumber}
+                          onChangeText={handleChange('idnumber')}
+                          onBlur={handleBlur('idnumber')}
+                        />
+                      </View>
+                      <Text style={{ color: 'red' }}>
+                        {(touched.idnumber || submitCount > 0) &&
+                          errors.idnumber}
+                      </Text>
 
                       <View style={styles.textboxContainer}>
                         <TextInput
@@ -202,53 +203,6 @@ export default function Register({ navigation }) {
                         {(touched.password || submitCount > 0) &&
                           errors.password}
                       </Text>
-
-                      <View style={styles.textboxContainer}>
-                        <TextInput
-                          placeholder="Enter username..."
-                          value={values.username}
-                          onChangeText={handleChange('username')}
-                          onBlur={handleBlur('username')}
-                        />
-                      </View>
-                      <Text style={{ color: 'red' }}>
-                        {(touched.username || submitCount > 0) &&
-                          errors.username}
-                      </Text>
-
-                      <View style={styles.textboxContainer}>
-                        <TextInput
-                          placeholder="Enter mobile number..."
-                          value={values.mobile}
-                          onChangeText={handleChange('mobile')}
-                          onBlur={handleBlur('mobile')}
-                        />
-                      </View>
-                      <Text style={{ color: 'red' }}>
-                        {(touched.mobile || submitCount > 0) && errors.mobile}
-                      </Text>
-
-                      <View style={styles.textboxContainer}>
-                        <TextInput
-                          placeholder="Enter location..."
-                          value={values.location}
-                          onChangeText={handleChange('location')}
-                          onBlur={handleBlur('location')}
-                        />
-                      </View>
-                      <Text style={{ color: 'red' }}>
-                        {(touched.location || submitCount > 0) &&
-                          errors.location}
-                      </Text>
-
-                      <TouchableOpacity
-                        style={styles.bigBtn}
-                        onPress={() =>
-                          getLocationAsync(setFieldValue, 'location')
-                        }
-                      >
-                        <Text style={{ color: 'white' }}>Detect Location</Text>
-                      </TouchableOpacity>
 
                       <TouchableOpacity
                         style={styles.bigBtn}

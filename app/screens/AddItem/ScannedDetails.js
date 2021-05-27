@@ -83,24 +83,18 @@ const GeneralInfo = ({ title, info }) => (
   </View>
 );
 
-function Profile({ route, navigation }) {
+function ScannedDetails({ route, navigation }) {
   const dispatch = useDispatch();
 
-  const {
-    username,
-    email,
-    mobile,
-    profilePicture,
-    location,
-    isLoading,
-  } = useSelector((state) => ({
-    username: state.userReducer.username,
-    email: state.userReducer.email,
-    mobile: state.userReducer.mobile,
-    location: state.userReducer.location,
-    profilePicture: state.userReducer.profilePicture,
-    isLoading: state.userReducer.isLoading,
-  }));
+  const { username, email, usertype, idnumber, isLoading } = useSelector(
+    (state) => ({
+      username: state.userReducer.username,
+      email: state.userReducer.email,
+      usertype: state.userReducer.usertype,
+      idnumber: state.userReducer.idnumber,
+      isLoading: state.userReducer.isLoading,
+    })
+  );
 
   return (
     <View style={{ flex: 1 }}>
@@ -121,44 +115,21 @@ function Profile({ route, navigation }) {
             padding: 10,
           }}
         >
-          <View style={{ alignItems: 'center', marginBottom: 20 }}>
-            {profilePicture === null ||
-            profilePicture === undefined ||
-            profilePicture.imageUri === '' ? (
-              <Image
-                source={require('../../../assets/default_avatar.jpg')}
-                style={{
-                  height: IMAGE_DIMENSION,
-                  width: IMAGE_DIMENSION,
-                  borderRadius: IMAGE_DIMENSION / 2,
-                }}
-              />
-            ) : (
-              <Image
-                source={{ uri: profilePicture.imageUri }}
-                style={{
-                  height: IMAGE_DIMENSION,
-                  width: IMAGE_DIMENSION,
-                  borderRadius: IMAGE_DIMENSION / 2,
-                }}
-              />
-            )}
-          </View>
+          <GeneralInfo title="Name" info={username} />
+          <GeneralInfo title="User Type" info={usertype} />
+          <GeneralInfo title="ID Number" info={idnumber} />
+          <GeneralInfo title="Email" info={email} />
 
-          <GeneralInfo title="Username" info={username} />
-          <GeneralInfo title="Mobile" info={mobile} />
-          <GeneralInfo title="Location" info={location} />
-
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.bigBtn}
             onPress={() => navigation.navigate('EditProfile')}
           >
             <Text style={{ color: 'white' }}>Edit</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </ScrollView>
       )}
     </View>
   );
 }
 
-export default Profile;
+export default ScannedDetails;

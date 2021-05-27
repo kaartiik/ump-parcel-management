@@ -8,23 +8,21 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  ScrollView,
 } from 'react-native';
+import { Picker } from 'native-base';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
-import { Item, Picker } from 'native-base';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import colours from '../../providers/constants/colours';
-import {
-  getAllProducts,
-  getCategoryProducts,
-  getProductUserInfo,
-} from '../../providers/actions/Product';
 
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
-dayjs.extend(customParseFormat);
+import colours from '../../providers/constants/colours';
+
+import {
+  getBarberBookings,
+  updateBookingStatus,
+} from '../../providers/actions/Product';
 
 const styles = StyleSheet.create({
   divider: {
@@ -33,6 +31,16 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: colours.borderGrey,
     alignSelf: 'center',
+  },
+  bigBtn: {
+    marginTop: 30,
+    marginBottom: 10,
+    marginHorizontal: 20,
+    backgroundColor: colours.themePrimary,
+    borderRadius: 4,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   recipeDescription: {
     marginVertical: 3,
@@ -54,112 +62,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  textboxContainer: {
+  searchBox: {
+    marginTop: 10,
+    marginHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colours.themePrimaryLight,
     borderRadius: 3,
     padding: 5,
-    marginVertical: 5,
   },
-  pickerOuterContainer: {
-    borderWidth: 0.5,
-    borderRadius: 4,
-    borderColor: colours.themePrimary,
-  },
-  pickerContainer: { width: '95%', alignSelf: 'center' },
 });
 
-const productCategories = [
-  { label: 'All', value: 'all' },
-  { label: 'Books & Stationeries', value: 'c1' },
-  { label: 'Clothes & Accessories', value: 'c2' },
-  { label: 'Food', value: 'c3' },
-  { label: 'Furniture', value: 'c4' },
-  { label: 'Home & Living', value: 'c5' },
-  { label: 'Kitchenware', value: 'c6' },
-  { label: 'Toiletries', value: 'c7' },
-  { label: 'Vehicles & Accessories ', value: 'c8' },
-  { label: 'Others', value: 'c9' },
-];
+const IMAGE_DIMENSION = 100;
 
-const RenderItem = ({ item }) => {
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
-  return (
-    <TouchableOpacity
-      style={{ marginTop: 10, padding: 10 }}
-      onPress={() => dispatch(getProductUserInfo(item))}
-    >
-      <Image
-        source={{ uri: Object.values(item.productImages)[0].image_url }}
-        style={{ height: 150, width: 150, borderRadius: 4 }}
-      />
-      <View
-        style={{
-          backgroundColor: 'rgba(52, 52, 52, 0.8)',
-          height: 50,
-          width: 150,
-          position: 'absolute',
-          left: 10,
-          bottom: 0,
-          borderBottomLeftRadius: 4,
-          borderBottomRightRadius: 4,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: 5,
-        }}
-      >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.price}</Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          {item.sellType}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-RenderItem.propTypes = {
-  item: PropTypes.object.isRequired,
-};
+const GeneralInfo = ({ title, info }) => (
+  <View style={{ flexDirection: 'row', marginLeft: 10, marginVertical: 5 }}>
+    <Text style={{ fontSize: 16, marginRight: 8 }}>{title}: </Text>
+    <Text style={{ flex: 1 }}>{info}</Text>
+  </View>
+);
 
 function Home({ route, navigation }) {
   const dispatch = useDispatch();
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
-  const [data, setData] = useState([]);
 
-  const { allProducts, isLoading } = useSelector((state) => ({
-    allProducts: state.productReducer.allProducts,
-    isLoading: state.productReducer.isLoading,
-  }));
-
-  useFocusEffect(
-    useCallback(() => {
-      dispatch(getAllProducts());
-    }, [])
+  const { username, email, usertype, idnumber, isLoading } = useSelector(
+    (state) => ({
+      username: state.userReducer.username,
+      email: state.userReducer.email,
+      usertype: state.userReducer.usertype,
+      idnumber: state.userReducer.idnumber,
+      isLoading: state.userReducer.isLoading,
+    })
   );
-
-  useEffect(() => {
-    setData(allProducts);
-  }, [allProducts]);
-
-  const searchData = (searchText) => {
-    let newData = [];
-    if (searchText) {
-      newData = allProducts.filter((item) => {
-        return item.productName.indexOf(searchText) > -1;
-      });
-      setData([...newData]);
-    } else {
-      setData([...allProducts]);
-    }
-  };
 
   return (
     <View style={{ flex: 1 }}>
       <AppBar />
 
       <View style={{ padding: 10 }}>
-        <Text style={{ fontSize: 18 }}>Products</Text>
+        <Text style={{ fontSize: 18 }}>Profile</Text>
 
         <View style={styles.divider} />
       </View>
@@ -167,54 +109,24 @@ function Home({ route, navigation }) {
       {isLoading ? (
         <LoadingIndicator />
       ) : (
-        <FlatList
-          keyExtractor={(item, index) => index.toString()}
-          data={data}
-          numColumns={2}
-          ListHeaderComponent={
-            <View style={{ padding: 5 }}>
-              <View style={styles.textboxContainer}>
-                <TextInput
-                  placeholder="Search..."
-                  value={search}
-                  onChangeText={(text) => {
-                    setSearch(text);
-                    searchData(text);
-                  }}
-                />
-              </View>
+        <ScrollView
+          contentContainerStyle={{
+            justifyContent: 'center',
+            padding: 10,
+          }}
+        >
+          <GeneralInfo title="Name" info={username} />
+          <GeneralInfo title="User Type" info={usertype} />
+          <GeneralInfo title="ID Number" info={idnumber} />
+          <GeneralInfo title="Email" info={email} />
 
-              <Text style={{ marginVertical: 5 }}>Sort by Category</Text>
-
-              <View style={styles.pickerOuterContainer}>
-                <Picker
-                  style={styles.pickerContainer}
-                  selectedValue={category}
-                  onValueChange={(value) => {
-                    setCategory(value);
-                    dispatch(getCategoryProducts(value));
-                  }}
-                >
-                  {productCategories.map((item, idx) => (
-                    <Picker.Item
-                      key={idx}
-                      label={item.label}
-                      value={item.value}
-                    />
-                  ))}
-                </Picker>
-              </View>
-            </View>
-          }
-          renderItem={({ item, index }) => (
-            <RenderItem key={index} item={item} />
-          )}
-          ListEmptyComponent={
-            <View style={styles.flatlistEmptyContainer}>
-              <Text>No products</Text>
-            </View>
-          }
-        />
+          {/* <TouchableOpacity
+            style={styles.bigBtn}
+            onPress={() => navigation.navigate('EditProfile')}
+          >
+            <Text style={{ color: 'white' }}>Edit</Text>
+          </TouchableOpacity> */}
+        </ScrollView>
       )}
     </View>
   );

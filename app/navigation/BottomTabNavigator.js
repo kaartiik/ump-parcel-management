@@ -1,16 +1,20 @@
 import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
 import colours from '../providers/constants/colours';
 import Home from '../screens/Home';
-import ProfileStack from './ProfileStack';
-import ChatStack from './ChatStack';
-import AddItem from '../screens/AddItem';
 import MyItems from '../screens/MyItems';
+import AddItem from '../screens/AddItem';
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
+  const { usertype, isLoading } = useSelector((state) => ({
+    usertype: state.userReducer.usertype,
+    isLoading: state.userReducer.isLoading,
+  }));
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -23,10 +27,6 @@ export default function BottomTabNavigator() {
             iconName = 'ios-add-outline';
           } else if (route.name === 'MyItemsTab') {
             iconName = 'ios-list-outline';
-          } else if (route.name === 'ProfileTab') {
-            iconName = 'ios-person';
-          } else if (route.name === 'ChatsTab') {
-            iconName = 'ios-chatbubbles';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -45,8 +45,9 @@ export default function BottomTabNavigator() {
         initialParams={{ product: null }}
       />
       <Tab.Screen name="MyItemsTab" component={MyItems} />
-      <Tab.Screen name="ProfileTab" component={ProfileStack} />
-      <Tab.Screen name="ChatsTab" component={ChatStack} />
+      {usertype === 'Admin' && (
+        <Tab.Screen name="UsersTab" component={MyItems} />
+      )}
     </Tab.Navigator>
   );
 }
