@@ -30,22 +30,7 @@ const styles = StyleSheet.create({
     backgroundColor: colours.borderGrey,
     alignSelf: 'center',
   },
-  recipeDescription: {
-    marginVertical: 3,
-    width: 220,
-  },
-  bookingItem: {
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 6,
-  },
-  previewImg: {
-    height: 100,
-    width: 100,
-    resizeMode: 'cover',
-    alignSelf: 'flex-start',
-    borderRadius: 6,
-  },
+  individualText: { color: 'black', fontWeight: 'bold', marginVertical: 5 },
   flatlistEmptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -63,41 +48,22 @@ const styles = StyleSheet.create({
 });
 
 const RenderItem = ({ item }) => {
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
   return (
-    <TouchableOpacity
-      style={{ marginTop: 10, padding: 10 }}
-      onPress={() => dispatch(getProductUserInfo(item))}
+    <View
+      style={{
+        backgroundColor: colours.themePrimaryLight,
+        borderRadius: 6,
+        paddingHorizontal: 5,
+        margin: 8,
+      }}
     >
-      <Image
-        source={{ uri: Object.values(item.productImages)[0].image_url }}
-        style={{ height: 150, width: 150, borderRadius: 4 }}
-      />
-      <View
-        style={{
-          backgroundColor: 'rgba(52, 52, 52, 0.8)',
-          borderBottomLeftRadius: 4,
-          borderBottomRightRadius: 4,
-          paddingHorizontal: 5,
-        }}
-      >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          {item.username}
-        </Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          {item.idnumber}
-        </Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          {item.usertype}
-        </Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.email}</Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          {item.location}
-        </Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.time}</Text>
-      </View>
-    </TouchableOpacity>
+      <Text style={styles.individualText}>Name: {item.username}</Text>
+      <Text style={styles.individualText}>ID Number: {item.idnumber}</Text>
+      <Text style={styles.individualText}>User Type: {item.usertype}</Text>
+      <Text style={styles.individualText}>Email: {item.email}</Text>
+      <Text style={styles.individualText}>Location: {item.location}</Text>
+      <Text style={styles.individualText}>Time: {item.time}</Text>
+    </View>
   );
 };
 
@@ -108,14 +74,19 @@ RenderItem.propTypes = {
 function MyItems({ route, navigation }) {
   const dispatch = useDispatch();
 
-  const { scans, isLoading } = useSelector((state) => ({
+  const { usertype, scans, isLoading } = useSelector((state) => ({
+    usertype: state.userReducer.usertype,
     scans: state.userReducer.scans,
     isLoading: state.userReducer.isLoading,
   }));
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(getMyProducts());
+      if (usertype === 'Admin') {
+        dispatch(getAllScans());
+      } else {
+        dispatch(getMyScans());
+      }
     }, [])
   );
 
@@ -124,7 +95,7 @@ function MyItems({ route, navigation }) {
       <AppBar />
 
       <View style={{ padding: 10 }}>
-        <Text style={{ fontSize: 18 }}>My Scans</Text>
+        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>My Collections</Text>
 
         <View style={styles.divider} />
       </View>

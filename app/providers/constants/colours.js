@@ -1,6 +1,6 @@
 const colours = {
-  themePrimary: '#5B1E1C',
-  themePrimaryLight: '#d4d6de',
+  themePrimary: '#5e59d2',
+  themePrimaryLight: '#e4e3fa',
   themePrimaryDark: '#C5282B',
   themeSecondary: '#19323C',
   themeSecondaryLight: '#435B66',

@@ -86,22 +86,23 @@ const GeneralInfo = ({ title, info }) => (
 function ScannedDetails({ route, navigation }) {
   const dispatch = useDispatch();
 
-  const { username, email, usertype, idnumber, isLoading } = useSelector(
-    (state) => ({
+  const { username, email, usertype, idnumber, location, time, isLoading } =
+    useSelector((state) => ({
       username: state.userReducer.username,
       email: state.userReducer.email,
       usertype: state.userReducer.usertype,
       idnumber: state.userReducer.idnumber,
+      location: state.userReducer.location,
+      time: state.userReducer.time,
       isLoading: state.userReducer.isLoading,
-    })
-  );
+    }));
 
   return (
     <View style={{ flex: 1 }}>
       <AppBar />
 
       <View style={{ padding: 10 }}>
-        <Text style={{ fontSize: 18 }}>Profile</Text>
+        <Text style={{ fontSize: 18 }}>Parcel Collected</Text>
 
         <View style={styles.divider} />
       </View>
@@ -119,6 +120,8 @@ function ScannedDetails({ route, navigation }) {
           <GeneralInfo title="User Type" info={usertype} />
           <GeneralInfo title="ID Number" info={idnumber} />
           <GeneralInfo title="Email" info={email} />
+          <GeneralInfo title="Location" info={location} />
+          <GeneralInfo title="Time" info={time} />
 
           {/* <TouchableOpacity
             style={styles.bigBtn}

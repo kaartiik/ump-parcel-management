@@ -6,6 +6,7 @@ import colours from '../providers/constants/colours';
 import Home from '../screens/Home';
 import MyItems from '../screens/MyItems';
 import AddItem from '../screens/AddItem';
+import ScannerStack from './ScannerStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,10 +24,12 @@ export default function BottomTabNavigator() {
 
           if (route.name === 'HomeTab') {
             iconName = 'ios-home';
-          } else if (route.name === 'AddItemTab') {
+          } else if (route.name === 'ScannerStack') {
             iconName = 'ios-add-outline';
           } else if (route.name === 'MyItemsTab') {
             iconName = 'ios-list-outline';
+          } else if (route.name === 'UsersTab') {
+            iconName = 'ios-people-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -40,8 +43,8 @@ export default function BottomTabNavigator() {
     >
       <Tab.Screen name="HomeTab" component={Home} />
       <Tab.Screen
-        name="AddItemTab"
-        component={AddItem}
+        name="ScannerStack"
+        component={ScannerStack}
         initialParams={{ product: null }}
       />
       <Tab.Screen name="MyItemsTab" component={MyItems} />

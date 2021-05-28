@@ -91,14 +91,21 @@ function BarCodeScannerScreen({ navigation, route }) {
 
   const getGeocodeAsync = async (location) => {
     let geocode = await Location.reverseGeocodeAsync(location);
+    alert(
+      `${geocode[0].street}, ${geocode[0].city}, ${geocode[0].district}, ${geocode[0].region}`
+    );
     setLocation(
       `${geocode[0].street}, ${geocode[0].city}, ${geocode[0].district}, ${geocode[0].region}`
     );
   };
 
   const handleBarCodeScanned = ({ type, data }) => {
-    if (data.indexOf('Point') !== 0) {
+    if (data.indexOf('ParcelID') !== 0) {
       alert('Invalid QR Code. Scan a valid checkpoint QR Code.');
+      return;
+    }
+    if (location === '') {
+      alert('Fetching location. Please try again.');
       return;
     }
     dispatch(
@@ -108,10 +115,10 @@ function BarCodeScannerScreen({ navigation, route }) {
         idnumber,
         email,
         dayjs().format('DD-MM-YYYY hh:mm A'),
-        location
+        location,
+        () => navigation.navigate('ScannedDetails')
       )
     );
-    navigation.goBack();
   };
 
   return (

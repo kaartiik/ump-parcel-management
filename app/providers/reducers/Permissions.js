@@ -3,6 +3,7 @@ import { actions } from '../actions/Permissions';
 const initialState = {
   locationPermission: false,
   notificationPermission: false,
+  cameraPermission: false,
 };
 
 export default function permissionsReducer(state = initialState, action = {}) {
@@ -17,6 +18,12 @@ export default function permissionsReducer(state = initialState, action = {}) {
       return {
         ...state,
         notificationPermission: action.payload,
+      };
+
+    case actions.PUT.CAMERA_PERMISSION:
+      return {
+        ...state,
+        cameraPermission: action.payload,
       };
 
     default:

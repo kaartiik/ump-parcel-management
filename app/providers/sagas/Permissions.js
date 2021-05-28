@@ -3,7 +3,12 @@
 import { put, fork, call, takeLatest } from 'redux-saga/effects';
 // import { eventChannel } from 'redux-saga';
 import * as Permissions from 'expo-permissions';
-import { actions, putNotificationPermission } from '../actions/Permissions';
+import {
+  actions,
+  putNotificationPermission,
+  putLocationPermission,
+  putCameraPermission,
+} from '../actions/Permissions';
 
 function* checkPermissionsSaga() {
   const { status: locationStatus } = yield call(
@@ -16,6 +21,11 @@ function* checkPermissionsSaga() {
     Permissions.NOTIFICATIONS
   );
 
+  const { status: cameraStatus } = yield call(
+    Permissions.getAsync,
+    Permissions.CAMERA
+  );
+
   if (locationStatus !== 'granted') {
     const { status: reStatus } = yield call(
       Permissions.askAsync,
@@ -25,7 +35,7 @@ function* checkPermissionsSaga() {
     if (reStatus !== 'granted') {
       alert(`We need location permission to make this work`);
     } else {
-      yield put(putNotificationPermission(true));
+      yield put(putLocationPermission(true));
     }
   }
 
@@ -39,6 +49,19 @@ function* checkPermissionsSaga() {
       alert(`We need notifications permission to make this work`);
     } else {
       yield put(putNotificationPermission(true));
+    }
+  }
+
+  if (cameraStatus !== 'granted') {
+    const { status: reStatus } = yield call(
+      Permissions.askAsync,
+      Permissions.CAMERA
+    );
+
+    if (reStatus !== 'granted') {
+      alert(`We need camera permission to make this work`);
+    } else {
+      yield put(putCameraPermission(true));
     }
   }
 }

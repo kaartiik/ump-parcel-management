@@ -101,7 +101,7 @@ function Home({ route, navigation }) {
       <AppBar />
 
       <View style={{ padding: 10 }}>
-        <Text style={{ fontSize: 18 }}>Profile</Text>
+        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Profile</Text>
 
         <View style={styles.divider} />
       </View>
@@ -109,23 +109,19 @@ function Home({ route, navigation }) {
       {isLoading ? (
         <LoadingIndicator />
       ) : (
-        <ScrollView
-          contentContainerStyle={{
-            justifyContent: 'center',
-            padding: 10,
-          }}
-        >
-          <GeneralInfo title="Name" info={username} />
-          <GeneralInfo title="User Type" info={usertype} />
-          <GeneralInfo title="ID Number" info={idnumber} />
-          <GeneralInfo title="Email" info={email} />
-
-          {/* <TouchableOpacity
-            style={styles.bigBtn}
-            onPress={() => navigation.navigate('EditProfile')}
+        <ScrollView>
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 10,
+            }}
           >
-            <Text style={{ color: 'white' }}>Edit</Text>
-          </TouchableOpacity> */}
+            <GeneralInfo title="Name" info={username} />
+            <GeneralInfo title="User Type" info={usertype} />
+            <GeneralInfo title="ID Number" info={idnumber} />
+            <GeneralInfo title="Email" info={email} />
+          </View>
         </ScrollView>
       )}
     </View>

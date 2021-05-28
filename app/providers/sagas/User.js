@@ -25,6 +25,7 @@ import {
   putUserLocation,
   putLoadingStatus,
   putUserProfilePicture,
+  putRecentlyScanned,
 } from '../actions/User';
 
 import dayjs from 'dayjs';
@@ -147,6 +148,7 @@ function* registerSaga({ payload }) {
       idnumber,
       email,
       password,
+      uuid: user.uid,
     });
 
     yield put(putLoadingStatus(false));
@@ -297,14 +299,19 @@ function* addScannedParcelSaga({ payload }) {
     const uuid = yield select(getUuidFromState);
     const uniqueid = Date.now();
 
-    yield call(rsf.database.update, `users/${uuid}`, {
-      username,
-      usertype,
-      idnumber,
-      email,
-      time,
-      location,
-    });
+    yield call(
+      rsf.database.update,
+      `users/${uuid}/my_scans/${uuid}_${uniqueid}`,
+      {
+        username,
+        usertype,
+        idnumber,
+        email,
+        time,
+        location,
+        scanID: `${uuid}_${uniqueid}`,
+      }
+    );
 
     yield call(rsf.database.update, `all_scans/${uuid}_${uniqueid}`, {
       username,
@@ -313,7 +320,10 @@ function* addScannedParcelSaga({ payload }) {
       email,
       time,
       location,
+      scanID: `${uuid}_${uniqueid}`,
     });
+
+    yield put(putRecentlyScanned({ location, time }));
 
     onSuccess();
 

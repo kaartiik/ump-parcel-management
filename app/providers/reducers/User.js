@@ -6,6 +6,8 @@ const initialState = {
   email: '',
   idnumber: '',
   uuid: '',
+  location: '',
+  time: '',
   users: [],
   scans: [],
   isLoading: false,
@@ -22,6 +24,15 @@ export default function userReducer(state = initialState, action = {}) {
         email,
         idnumber,
         usertype,
+      };
+    }
+
+    case actions.PUT.RECENTLY_SCANNED: {
+      const { location, time } = action.payload;
+      return {
+        ...state,
+        location,
+        time,
       };
     }
 

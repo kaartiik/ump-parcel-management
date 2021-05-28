@@ -20,12 +20,18 @@ export const actions = {
     USER_PROFILE: 'PUT_USER_PROFILE',
     ALL_USERS: 'PUT_ALL_USERS',
     ALL_SCANS: 'PUT_ALL_SCANS',
+    RECENTLY_SCANNED: 'PUT_RECENTLY_SCANNED',
     LOADING_STATUS: 'PUT_LOADING_STATUS',
   },
   UPDATE: {
     USER_PROFILE: 'UPDATE_USER_PROFILE',
   },
 };
+
+export const putRecentlyScanned = (data) => ({
+  type: actions.PUT.RECENTLY_SCANNED,
+  payload: data,
+});
 
 export const getAllUsers = () => ({
   type: actions.GET.ALL_USERS,

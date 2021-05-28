@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Image } from 'react-native';
+import { View, TouchableOpacity, Image, Text } from 'react-native';
 import { Header, Left, Right, Body } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,12 +36,16 @@ const AppBar = () => {
         </Left>
 
         <Body>
-          <Image
-            // eslint-disable-next-line global-require
-            source={require('../../assets/Logo.png')}
-            resizeMode="contain"
-            style={{ alignSelf: 'flex-start', height: '100%', width: '150%' }}
-          />
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              color: 'white',
+              textAlign: 'center',
+            }}
+          >
+            UMP Parcel Management
+          </Text>
         </Body>
 
         <Right />
