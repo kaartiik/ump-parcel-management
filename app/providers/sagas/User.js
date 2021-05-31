@@ -223,7 +223,7 @@ function* updateProfileSaga({ payload }) {
   }
 }
 
-function* getAllUsersSaga({ payload }) {
+function* getAllUsersSaga() {
   try {
     yield put(putLoadingStatus(true));
 

@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import colours from '../providers/constants/colours';
 import Home from '../screens/Home';
 import MyItems from '../screens/MyItems';
+import Users from '../screens/Users';
 import AddItem from '../screens/AddItem';
 import ScannerStack from './ScannerStack';
 
@@ -48,9 +49,7 @@ export default function BottomTabNavigator() {
         initialParams={{ product: null }}
       />
       <Tab.Screen name="MyItemsTab" component={MyItems} />
-      {usertype === 'Admin' && (
-        <Tab.Screen name="UsersTab" component={MyItems} />
-      )}
+      {usertype === 'Admin' && <Tab.Screen name="UsersTab" component={Users} />}
     </Tab.Navigator>
   );
 }

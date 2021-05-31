@@ -52,6 +52,7 @@ const RenderItem = ({ item }) => {
     <View
       style={{
         backgroundColor: colours.themePrimaryLight,
+        width: '100%',
         borderRadius: 6,
         paddingHorizontal: 5,
         margin: 8,

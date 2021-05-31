@@ -16,10 +16,7 @@ import AppBar from '../../components/AppBar';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import colours from '../../providers/constants/colours';
-import {
-  getMyProducts,
-  getProductUserInfo,
-} from '../../providers/actions/Product';
+import { getAllUsers } from '../../providers/actions/User';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -63,36 +60,24 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     padding: 5,
   },
+  individualText: { color: 'black', fontWeight: 'bold', marginVertical: 5 },
 });
 
 const RenderItem = ({ item }) => {
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
   return (
     <View
-      style={{ marginTop: 10, padding: 10 }}
-      onPress={() => dispatch(getProductUserInfo(item))}
+      style={{
+        backgroundColor: colours.themePrimaryLight,
+        width: '95%',
+        borderRadius: 6,
+        paddingHorizontal: 5,
+        margin: 8,
+      }}
     >
-      <View
-        style={{
-          backgroundColor: 'rgba(52, 52, 52, 0.8)',
-          bottom: 0,
-          borderBottomLeftRadius: 4,
-          borderBottomRightRadius: 4,
-          paddingHorizontal: 5,
-        }}
-      >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          {item.username}
-        </Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          {item.idnumber}
-        </Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>
-          {item.usertype}
-        </Text>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.email}</Text>
-      </View>
+      <Text style={styles.individualText}>Name: {item.username}</Text>
+      <Text style={styles.individualText}>ID Number: {item.idnumber}</Text>
+      <Text style={styles.individualText}>User Type: {item.usertype}</Text>
+      <Text style={styles.individualText}>Email: {item.email}</Text>
     </View>
   );
 };
@@ -111,7 +96,7 @@ function Users({ route, navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(getMyProducts());
+      dispatch(getAllUsers());
     }, [])
   );
 

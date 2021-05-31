@@ -35,7 +35,7 @@ const AppBar = () => {
           </TouchableOpacity>
         </Left>
 
-        <Body>
+        <Body style={{ marginLeft: -10 }}>
           <Text
             style={{
               fontSize: 18,
@@ -47,8 +47,6 @@ const AppBar = () => {
             UMP Parcel Management
           </Text>
         </Body>
-
-        <Right />
       </Header>
     </View>
   );
